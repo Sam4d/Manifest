@@ -1846,3 +1846,127 @@ footer {
 .guide-tip {
   color: #73877a;
 }
+
+.capture-card {
+  border: 1px solid var(--border, #d9e5df);
+  border-radius: 20px;
+  padding: 24px;
+  margin: 0 0 24px;
+  background: var(--surface, #fff);
+}
+.capture-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.capture-heading h2 {
+  font-size: 25px;
+  margin: 8px 0;
+  letter-spacing: -0.6px;
+}
+.capture-heading p,
+.capture-bottom p,
+.capture-advanced p {
+  font-size: 13px;
+  line-height: 1.6;
+  opacity: 0.72;
+}
+.capture-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.capture-card label small {
+  font-weight: 400;
+  opacity: 0.7;
+}
+.capture-card textarea,
+.capture-card input:not([type="checkbox"]),
+.capture-card select {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--border, #b7c8c0);
+  border-radius: 8px;
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.capture-card textarea {
+  resize: vertical;
+}
+.capture-controls {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.2fr;
+  gap: 14px;
+  margin: 16px 0;
+}
+.capture-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 16px;
+}
+.capture-bottom p {
+  max-width: 65%;
+  margin: 0;
+}
+.capture-card .button {
+  white-space: nowrap;
+}
+.capture-advanced summary {
+  cursor: pointer;
+  font-size: 12px;
+}
+.capture-card .capture-check {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.capture-site {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-top: 1px solid var(--border, #d9e5df);
+}
+.capture-site div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.capture-site small {
+  display: block;
+  opacity: 0.7;
+  margin-top: 6px;
+}
+.capture-site button {
+  flex-shrink: 0;
+}
+[data-theme="dark"] .capture-card {
+  background: #10231d;
+  border-color: #294137;
+}
+@media (max-width: 1150px) {
+  .capture-controls {
+    grid-template-columns: 1fr 1fr;
+  }
+  .capture-heading {
+    align-items: flex-start;
+  }
+}
+
+#capture-results {
+  margin-top: 24px;
+  border-top: 1px solid var(--border, #d9e5df);
+  padding-top: 16px;
+}
+#capture-summary {
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}

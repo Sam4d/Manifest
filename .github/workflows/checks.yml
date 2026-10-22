@@ -19,3 +19,5 @@ jobs:
       # CI smoke process disables Chromium's sandbox; the shipped app keeps it.
       - name: Check the real desktop interface
         run: xvfb-run -a npm run test:desktop:ci
+      - name: Check multi-site and rendered capture
+        run: xvfb-run -a npm run test:capture:desktop:ci

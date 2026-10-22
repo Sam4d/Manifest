@@ -2,6 +2,14 @@
 
 PageTrace is a local desktop application for **offline website analysis, HTML structure inspection, asset inventory, AI context extraction, and website reconstruction planning**. It does not run a web server or require a cloud service.
 
+## Capture stage (0.4)
+
+`src/capture.cjs` streams public HTTP responses, checks robots policy and redirects, discovers bounded page/asset references, checkpoints a persistent queue and produces original + rewritten mirror folders. `src/browser-capture.cjs` supplies optional rendered DOM and observed resource URLs through disposable sandboxed Electron sessions. It has no preload, Node integration, persistent credentials or granted permissions. Capturing uses the local machine's network; the local UI keeps its network-blocking content policy. See [CAPTURE.md](CAPTURE.md) for limits and output schema.
+
+Main-process capture IPC adds `capture`, `resume-capture`, `analyze-capture` and `open-capture`. Native directory selection controls destination/resume paths. Settings and saved file records are validated; URL hashes map remote paths to bounded local filenames. Only the main application frame can invoke handlers. The existing busy lock prevents scan/export/capture overlap. Cancellation checkpoints the pending queue; source bytes and rendered snapshots remain distinct. Reopening a project restores pending downloads, not an update synchronization pass.
+
+`capture-report.html` escapes records and blocks scripts. `PAGETRACE-CAPTURE.json` in the mirror carries source URLs and warnings into the AI export. HTTP response metadata excludes cookies and authorization headers. The capture engine parses/relinks sources up to 8 MiB, while scanner parsing remains capped at 2 MiB.
+
 ## Components
 
 ```mermaid
@@ -34,7 +42,7 @@ flowchart LR
 
 The scanner walks directory entries asynchronously. It records media sizes using filesystem metadata rather than decoding or loading media. Recognized text source files up to **2 MiB** are read and parsed; larger source files are retained without parsing. The resulting inventory is held in memory, so a source tree with very large numbers of files can still consume substantial memory even if its media is never loaded.
 
-HTML is parsed using parse5. Page records contain titles, headings, content excerpts, metadata, semantic-element counts, and a nested outline. The outline is bounded to avoid unbounded UI rendering. Supported static references are resolved against an inventory of known paths. External URLs are classified but never fetched.
+HTML is parsed using parse5. Page records contain titles, headings, content excerpts, metadata, semantic-element counts, and a nested outline. The outline is bounded to avoid unbounded UI rendering. Supported static references are resolved against an inventory of known paths. During scanning, external URLs are classified without fetching; capture is a separate explicit operation.
 
 The UI limits the visible file table to **500 matching rows**, page cards to **200 pages**, and displayed warnings/exclusions to bounded lists. The exported manifest retains the full inventory, subject to individual parsing limits. These display caps do not change export decisions.
 
@@ -54,7 +62,7 @@ Export copies retained files into a fresh directory outside the input folder. It
 
 The main process controls filesystem access. IPC requests are restricted to the application’s main frame. The renderer has Node integration disabled, context isolation enabled, and Chromium sandboxing enabled during normal use. The preload exposes no arbitrary filesystem or shell execution API.
 
-The content policy permits local application scripts/styles and blocks network connections. Navigation and new windows are blocked. Website content is inserted as text; the application never loads an inspected website into the Electron window. Exported reports escape text and forbid scripts through their own content policy.
+The content policy permits local application scripts/styles and blocks network connections. Navigation and new windows are blocked. Website content is inserted as text; the main UI never loads inspected websites. Optional browser capture uses separate disposable sandboxed windows. Exported reports escape text and forbid scripts through their own content policy.
 
 Known credential filenames, symlinks, dependencies, and caches are excluded. This does not detect secrets embedded in ordinary code or all unusual credential filenames. Lightweight source is not sanitized for safe execution. Inspect exports before running or sharing them.
 
@@ -100,4 +108,4 @@ Do not commit executables or dependency/build caches into the source tree. Incre
 
 ## Scope boundaries
 
-PageTrace is a source-analysis and reconstruction tool. Browser rendering, site compilation, crawling live websites, arbitrary custom per-file export selections, archive extraction, media transcoding, and pixel-perfect cloning are outside this version’s workflow. Improvements should preserve the default offline behavior and the original input folder.
+PageTrace is a source-analysis and reconstruction tool. Site compilation, arbitrary custom per-file export selections, archive extraction, media transcoding, complete HTTrack-option parity, and pixel-perfect cloning are outside this version’s workflow. Public website capture and bounded browser rendering are available in 0.4. Improvements should preserve the default offline behavior and the original input folder.

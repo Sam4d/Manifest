@@ -4,9 +4,9 @@
 
 ## What I built
 
-PageTrace is an Electron and Node.js desktop application that turns a local website folder into an inspectable inventory and a lightweight reconstruction kit. It prepares source context for an AI-assisted rebuilding workflow without uploading files or executing the inspected website.
+PageTrace is an Electron and Node.js desktop application that captures public websites or turns a local website folder into an inspectable inventory and a lightweight reconstruction kit. It prepares source context for an AI-assisted rebuilding workflow without uploading files. Static scans do not execute site code; optional browser capture uses isolated script execution.
 
-HTTrack can supply the downloaded website folder. PageTrace analyzes that local folder; it is not the crawler.
+PageTrace 0.4 includes its own static and rendered capture stages. HTTrack folders remain supported through the existing local-folder workflow. See the [capture guide](CAPTURE.md) for supported features and explicit gaps.
 
 ## Resume bullets
 
@@ -16,6 +16,21 @@ Use these under **Projects**, and only claim work you actually contributed to an
 - Implemented source-preserving export rules that omit audio/video and oversized binary assets, with documented parsing limits, static-reference inspection and an omitted-assets checklist.
 
 If Claude helped implement these features, describe the collaboration accurately. Do not claim independent implementation of components you cannot explain. This project does not establish professional AI/ML employment or model-training experience.
+
+## Capture demonstration
+
+![Multi-site capture controls](images/11-capture-setup.png)
+
+![Completed two-site fixture capture](images/12-capture-results.png)
+
+![Structure parsed from a JavaScript-rendered capture](images/13-captured-structure.png)
+
+These screenshots come from the real desktop capture test against a local HTTP fixture, not a live customer website. Browser JavaScript creates a heading and image; the test verifies the DOM snapshot, durable asset files, site isolation, scanner integration and reopening a saved project after reload. The capture report records inaccessible URLs and configured boundaries. Do not describe this as full HTTrack parity or a production-scale benchmark.
+
+Additional project bullets, if they reflect your reviewed contributions:
+
+- Extended PageTrace with local multi-site capture, streamed downloads, robots-aware URL scope, persistent queue resume and bounded retries, preserving full responses alongside an AI-ready mirror.
+- Added sandboxed Electron rendering for JavaScript-generated HTML, URL-to-file mapping and capture reports, with automated HTTP-fixture and real desktop integration checks.
 
 ## Visual demonstration
 
@@ -49,7 +64,7 @@ Discuss unresolved references, excluded paths and parsing bounds. Common credent
 
 | Time | Action | What to explain |
 | --- | --- | --- |
-| 0:00–0:25 | Introduce the input folder | HTTrack supplies downloaded files; PageTrace prepares an offline source handoff. |
+| 0:00–0:25 | Show two URLs and capture controls | PageTrace downloads public resources locally, then prepares an AI source handoff. |
 | 0:25–0:55 | Scan and show Overview | Distinguish inventoried bytes, estimated retained bytes and actual export size. Label generated sample data. |
 | 0:55–1:30 | Expand a page outline | Show the title, headings and nested elements; explain static-analysis limits. |
 | 1:30–2:00 | Inspect keep/omit decisions | Explain source retention, binary cutoff and the 2 MiB parsing limit. |
@@ -85,4 +100,4 @@ Do not infer token savings from omitted video bytes. Do not claim pixel-perfect 
 
 ## Review status
 
-Prepared from repository documentation, package configuration and a partial scanner-code review. The overview screenshot was visually inspected. No application run, benchmark, test rerun or customer-result verification was performed for this walkthrough.
+Updated for 0.4 with local automated capture/scanner/export tests and real Electron desktop runs. Screenshots were generated from the running application. Test fixtures are synthetic; no live-site performance benchmark, customer deployment or model/token-savings measurement is claimed.

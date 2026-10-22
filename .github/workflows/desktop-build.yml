@@ -25,6 +25,8 @@ jobs:
       - run: npm test
       - name: Check Windows desktop interactions
         run: npm run test:desktop
+      - name: Check multi-site and rendered capture
+        run: npm run test:capture:desktop
       - name: Build installer and portable executable
         run: npm run dist:win
         env:
@@ -49,7 +51,7 @@ jobs:
           $lines | Set-Content dist/SHA256SUMS.txt
           gh release view $tag --json tagName *> $null
           if ($LASTEXITCODE -ne 0) {
-            gh release create $tag --target $env:GITHUB_SHA --title "PageTrace $version" --notes "PageTrace offline website analyzer. White and #00674F emerald light mode, matching dark mode, interactive file inspector, and illustrated documentation. Download PageTrace-Windows-x64.exe to run without installing. Windows x64; unsigned build."
+            gh release create $tag --target $env:GITHUB_SHA --title "PageTrace $version" --notes "PageTrace website capture and AI reconstruction toolkit. Multi-site projects, static and sandboxed browser capture, resumable jobs, crawl limits, local HTML/CSS rewriting, full originals and lightweight AI export. Download PageTrace-Windows-x64.exe to run without installing. Windows x64; unsigned build."
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
           gh release upload $tag @files dist/SHA256SUMS.txt --clobber

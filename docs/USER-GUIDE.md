@@ -1,5 +1,8 @@
 # A visual guide to PageTrace
 
+**New in 0.4:** [Capture websites directly](CAPTURE.md), including multiple URLs, browser-rendered pages, saved project resume and full original downloads. After capture, select a site to analyze using the workflow below.
+
+
 PageTrace turns a local website folder into a readable report, an AI-ready manifest, and a smaller source copy. Everything happens on your computer. The original folder stays untouched.
 
 ## Appearance and keyboard controls
@@ -57,7 +60,7 @@ Open **Files & assets** to search by path, filter by **Keep in export** / **Omit
 - **KEEP:** copied to the lightweight folder.
 - **OMIT:** inventoried in the manifest, but not copied.
 - Use the arrow on a row to inspect the decision reason and references found in that file.
-- References distinguish local targets, unresolved paths, and external URLs/anchors. External URLs are recorded, never fetched.
+- References distinguish local targets, unresolved paths, and external URLs/anchors. During analysis, external URLs are recorded without fetching. The separate capture stage fetches permitted URLs.
 
 The interface displays up to 500 matching rows at a time to stay responsive. The manifest contains every inventoried file. It is not a tool for selecting individual custom omissions in this version.
 
@@ -81,7 +84,7 @@ Click **Export blueprint** at the bottom of the window and select a destination 
 | `lightweight/.pagetrace-*/PAGETRACE-OMITTED.json` | A checklist of media to replace with your own elements.                                                                   |
 | `REBUILD.md`                                      | A reconstruction handoff brief with limitations and next steps.                                                           |
 
-Video/audio HTML elements and supported `src`/`poster` references receive placeholders. CSS, JavaScript, `srcset`, and runtime-generated references may still need manual changes. The app does not guarantee a working, pixel-identical website. It does not compile or execute the original site.
+Video/audio HTML elements and supported `src`/`poster` references receive placeholders. CSS, JavaScript, `srcset`, and runtime-generated references may still need manual changes. The app does not guarantee a working, pixel-identical website. The analysis/export stages do not compile or execute the original site; optional browser capture runs scripts in a separate sandbox.
 
 If any files changed or became unreadable between scanning and export, a warning appears and the report lists the affected paths. Review those warnings and rescan a stable copy before relying on the export.
 

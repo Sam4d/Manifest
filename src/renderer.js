@@ -65,6 +65,7 @@ function message(value, kind = "success") {
 }
 function navigate(view) {
   activeView = view;
+  $("capture-card").hidden = view !== "overview";
   document.querySelectorAll(".nav").forEach((b) => {
     b.classList.toggle("active", b.dataset.view === view);
     b.setAttribute("aria-current", b.dataset.view === view ? "page" : "false");
@@ -91,6 +92,11 @@ $("help").onclick = () => navigate("guide");
 $("all-pages").onclick = () => navigate("pages");
 function setBusy(value) {
   operation = value;
+  document
+    .querySelectorAll(
+      "#capture-form input, #capture-form select, #capture-form textarea, #capture-form button, #capture-sites button, #resume-capture, #open-capture",
+    )
+    .forEach((e) => (e.disabled = !!value || e.dataset.unavailable === "true"));
   $("scan").disabled = !!value;
   $("sample").disabled = !!value;
   $("export").disabled = !!value || !data;
@@ -98,10 +104,14 @@ function setBusy(value) {
   $("open-export").disabled = !!value;
   $("progress-panel").hidden = !value;
   $("cancel").hidden = value === "export";
+  $("cancel").textContent =
+    value === "capture" ? "Pause capture" : "Cancel scan";
   $("progress-title").textContent =
-    value === "export"
-      ? "Preparing your reconstruction kit…"
-      : "Reading your website…";
+    value === "capture"
+      ? "Capturing your websites…"
+      : value === "export"
+        ? "Preparing your reconstruction kit…"
+        : "Reading your website…";
   $("progress-detail").textContent =
     value === "export"
       ? "Copying retained files into a new folder. Your original stays untouched."
@@ -500,6 +510,11 @@ $("open-export").onclick = async () => {
   }
 };
 window.pageTrace.onProgress((p) => {
+  if (p.phase === "capture") {
+    $("progress-detail").textContent =
+      `${p.files} files saved · ${size(p.bytes)} · ${p.pages} pages · ${p.queued} queued · ${p.url}`;
+    return;
+  }
   $("progress-detail").textContent =
     operation === "export"
       ? `${p.files.toLocaleString()} files processed · ${size(p.bytes)} retained`
@@ -538,3 +553,110 @@ document.addEventListener("keydown", (event) => {
     );
   }
 });
+
+function showCaptures(result) {
+  $("capture-results").hidden = false;
+  $("capture-summary").textContent =
+    `${result.paused ? "Paused. Resume this project folder to continue." : "Capture finished. Review status and failures before rebuilding."} Saved in ${result.directory}`;
+  $("capture-sites").replaceChildren(
+    ...result.sites.map((site) => {
+      const row = text("div", "", "capture-site"),
+        info = text("div", "");
+      info.append(
+        text("strong", site.url),
+        text(
+          "small",
+          `${site.status.toUpperCase()} · ${site.pages} pages · ${site.files} files · ${size(site.bytes)} · ${site.failed} failures / rendering warnings`,
+        ),
+      );
+      const button = text(
+        "button",
+        "Analyze & prepare AI export",
+        "text-button",
+      );
+      button.disabled = !site.files;
+      button.dataset.unavailable = String(!site.files);
+      button.onclick = async () => {
+        setBusy("scan");
+        try {
+          const result = await window.pageTrace.analyzeCapture(
+            site.index,
+            Number($("threshold").value),
+          );
+          data = result;
+          $("search").value = "";
+          $("decision-filter").value = "all";
+          $("open-export").hidden = true;
+          $("step-three").classList.remove("complete");
+          render();
+          navigate("overview");
+          message(
+            "Capture analyzed. Export the AI kit to a separate folder. Full captured assets stay on disk.",
+          );
+        } catch (e) {
+          message(e.message, "error");
+        } finally {
+          setBusy(null);
+        }
+      };
+      row.append(info, button);
+      return row;
+    }),
+  );
+}
+async function beginCapture(resume = false) {
+  setBusy("capture");
+  message(
+    resume
+      ? "Choose the saved project folder containing project.json."
+      : "Choose a destination for the full website captures.",
+    "info",
+  );
+  try {
+    const result = resume
+      ? await window.pageTrace.resumeCapture()
+      : await window.pageTrace.capture({
+          urls: $("capture-urls")
+            .value.split(/\n/)
+            .map((s) => s.trim())
+            .filter(Boolean),
+          options: {
+            mode: $("capture-mode").value,
+            maxPages: Number($("capture-pages").value),
+            maxDepth: Number($("capture-depth").value),
+            maxBytes: Number($("capture-mb").value) * 1048576,
+            maxFiles: Number($("capture-files").value),
+            maxFileBytes: Number($("capture-file-mb").value) * 1048576,
+            delayMs: Number($("capture-delay").value),
+            retries: Number($("capture-retries").value),
+            include: $("capture-include").value,
+            exclude: $("capture-exclude").value,
+            externalAssets: $("capture-external").checked,
+          },
+        });
+    if (result) {
+      showCaptures(result);
+      message(
+        result.paused
+          ? "Capture paused and saved. Use Resume a saved capture to continue."
+          : "Capture saved. Select a site to analyze, then export your AI kit.",
+      );
+    } else message("Folder selection cancelled.", "info");
+  } catch (e) {
+    message("Capture could not finish: " + e.message, "error");
+  } finally {
+    setBusy(null);
+  }
+}
+$("capture-form").onsubmit = (event) => {
+  event.preventDefault();
+  beginCapture();
+};
+$("resume-capture").onclick = () => beginCapture(true);
+$("open-capture").onclick = async () => {
+  try {
+    await window.pageTrace.openCapture();
+  } catch (e) {
+    message(e.message, "error");
+  }
+};

@@ -127,10 +127,10 @@
         <div class="privacy">
           <svg><use href="#i-shield" /></svg>
           <div>
-            Offline by design<span>No uploads. Your files stay yours.</span>
+            Local by design<span>No uploads. Your files stay yours.</span>
           </div>
         </div>
-        <div class="version">PAGETRACE <span>v0.3.0</span></div>
+        <div class="version">PAGETRACE <span>v0.4.0</span></div>
       </div>
     </aside>
     <main>
@@ -189,11 +189,165 @@
             ><svg class="small"><use href="#i-arrow" /></svg>
           </button>
         </div>
+        <section
+          id="capture-card"
+          class="capture-card"
+          aria-labelledby="capture-heading"
+        >
+          <div class="capture-heading">
+            <div>
+              <div class="eyebrow">FROM URL TO BLUEPRINT</div>
+              <h2 id="capture-heading">Bring the website here.</h2>
+              <p>
+                Download with your computer’s connection. Keep a full capture,
+                then build your lighter AI kit.
+              </p>
+            </div>
+            <button id="resume-capture" class="text-button">
+              Resume a saved capture
+            </button>
+          </div>
+          <form id="capture-form">
+            <label for="capture-urls"
+              >Website URLs
+              <small
+                >One per line, up to 20. Each gets its own folder.</small
+              ></label
+            >
+            <textarea
+              id="capture-urls"
+              rows="2"
+              placeholder="https://example.com"
+              required
+            ></textarea>
+            <div class="capture-controls">
+              <label
+                >Capture mode<select id="capture-mode">
+                  <option value="static">Fast · linked pages & assets</option>
+                  <option value="browser">
+                    Browser · JavaScript & rendered DOM
+                  </option>
+                </select></label
+              >
+              <label
+                >Page limit<input
+                  id="capture-pages"
+                  type="number"
+                  min="1"
+                  max="10000"
+                  value="100"
+                  required
+              /></label>
+              <label
+                >Link depth<input
+                  id="capture-depth"
+                  type="number"
+                  min="0"
+                  max="30"
+                  value="3"
+                  required
+              /></label>
+              <label
+                >Stored data limit (MiB)<input
+                  id="capture-mb"
+                  type="number"
+                  min="1"
+                  max="20480"
+                  value="500"
+                  required
+              /></label>
+            </div>
+            <details class="capture-advanced">
+              <summary>More capture controls</summary>
+              <div class="capture-controls">
+                <label
+                  >File limit<input
+                    id="capture-files"
+                    type="number"
+                    min="1"
+                    max="100000"
+                    value="2000"
+                    required
+                /></label>
+                <label
+                  >Per-file limit (MiB)<input
+                    id="capture-file-mb"
+                    type="number"
+                    min="1"
+                    max="2048"
+                    value="50"
+                    required
+                /></label>
+                <label
+                  >Delay between files (ms)<input
+                    id="capture-delay"
+                    type="number"
+                    min="0"
+                    max="60000"
+                    value="250"
+                    required
+                /></label>
+                <label
+                  >Retries<input
+                    id="capture-retries"
+                    type="number"
+                    min="0"
+                    max="5"
+                    value="2"
+                    required
+                /></label>
+                <label
+                  >Include URL patterns<textarea
+                    id="capture-include"
+                    rows="2"
+                    placeholder="Blank includes all URLs"
+                  ></textarea>
+                </label>
+                <label
+                  >Exclude URL patterns<textarea
+                    id="capture-exclude"
+                    rows="2"
+                    placeholder="*/logout*&#10;*/cart*"
+                  ></textarea>
+                </label>
+              </div>
+              <label class="capture-check"
+                ><input id="capture-external" type="checkbox" checked /> Include
+                external assets such as fonts and CDN files</label
+              >
+              <p>
+                Patterns match URLs, one per line. Use * as a wildcard. Pages
+                stay on the starting origin. Robots rules apply to every origin.
+              </p>
+            </details>
+            <div class="capture-bottom">
+              <p>
+                Public pages, available assets and metadata. Server code and
+                private databases are not exposed. Browser mode executes site
+                scripts in an isolated window.
+              </p>
+              <button id="capture-start" class="button primary" type="submit">
+                Capture websites <svg><use href="#i-arrow" /></svg>
+              </button>
+            </div>
+          </form>
+          <div id="capture-results" hidden>
+            <div class="capture-heading">
+              <h3>Your captured websites</h3>
+              <button id="open-capture" class="text-button">
+                Open capture folder
+              </button>
+            </div>
+            <p id="capture-summary" role="status"></p>
+            <div id="capture-sites"></div>
+          </div>
+        </section>
         <div class="workflow" aria-label="Workflow">
           <div id="step-one" class="step active">
             <span class="step-number">01</span>
             <div>
-              <b>Choose a folder</b><small>Your local website files</small>
+              <b>Capture or choose a folder</b
+              ><small>Website URLs or local files</small>
             </div>
           </div>
           <div class="step-connector"></div>
@@ -514,7 +668,9 @@
               <span class="guide-number">01</span>
               <h2>Choose your website</h2>
               <p>
-                Click <b>Choose website folder</b> and select the extracted root
+                On Overview, enter URLs and click <b>Capture websites</b>, then
+                analyze a captured site. Or click
+                <b>Choose website folder</b> and select the extracted root
                 folder containing your HTML, CSS, scripts, and assets. ZIP files
                 need to be extracted first.
               </p>
@@ -583,10 +739,12 @@
           <section class="guide-caution">
             <svg><use href="#i-shield" /></svg>
             <p>
-              <b>A blueprint, not a pixel-perfect clone.</b> PageTrace doesn’t
-              execute scripts, compile the website, or discover every dynamic
-              route. Review source for embedded secrets before sharing it. Media
-              placeholders may change the layout.
+              <b>A blueprint, not a pixel-perfect clone.</b> Static analysis
+              does not execute scripts. Browser capture runs scripts in a
+              separate sandbox to record rendered HTML. Neither mode captures
+              backend code or every dynamic route. Review source for embedded
+              secrets before sharing it. Media placeholders may change the
+              layout.
             </p>
           </section>
         </div>

@@ -1,7 +1,7 @@
 {
   "name": "pagetrace",
-  "version": "0.3.0",
-  "description": "Offline website structure analyzer, AI-ready manifest extractor, and lightweight source exporter",
+  "version": "0.4.0",
+  "description": "Website capture, structure analysis and AI-ready source export for Windows",
   "main": "src/main.cjs",
   "private": true,
   "scripts": {
@@ -12,7 +12,9 @@
     "test:desktop": "electron scripts/desktop-smoke.cjs",
     "postinstall": "node node_modules/electron/install.js",
     "test:desktop:ci": "electron --no-sandbox --disable-gpu scripts/desktop-smoke.cjs",
-    "dist:win": "electron-builder --win nsis portable --x64 --publish never"
+    "dist:win": "electron-builder --win nsis portable --x64 --publish never",
+    "test:capture:desktop": "electron scripts/capture-smoke.cjs",
+    "test:capture:desktop:ci": "electron --no-sandbox --disable-gpu scripts/capture-smoke.cjs"
   },
   "devDependencies": {
     "electron": "^45.0.0",
