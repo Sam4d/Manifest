@@ -1,6 +1,6 @@
 {
   "name": "siteatlas",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Your offline website blueprint",
   "main": "src/main.cjs",
   "private": true,
@@ -52,7 +52,10 @@
     },
     "portable": {
       "artifactName": "SiteAtlas-${version}-${arch}-portable.exe"
-    }
+    },
+    "electronLanguages": [
+      "en-US"
+    ]
   },
   "dependencies": {
     "parse5": "^8.0.1"

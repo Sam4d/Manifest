@@ -3,7 +3,7 @@ let data = null,
   operation = null,
   activeView = "overview";
 const NS = "http://www.w3.org/2000/svg";
-const palette = ["#6b9b86", "#87a5c8", "#d4a06f", "#cbd5d0"];
+const palette = ["#579d7f", "#a6d8c0", "#77b79b", "#d9eae0"];
 const categories = ["Source code", "Images", "Video & audio", "Other assets"];
 const titles = {
   overview: [

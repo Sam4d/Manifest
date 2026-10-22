@@ -13,7 +13,9 @@ Two self-contained **Windows 10/11 x64** executables are built:
 - **Setup** — an installer with a location picker and Start menu / desktop shortcuts.
 - **Portable** — run without installing. Node.js is not required.
 
-Get them from **[Actions → Windows executable](https://github.com/Sam4d/Manifest/actions/workflows/desktop-build.yml) → latest successful run → Artifacts → SiteAtlas-Windows-x64**. The workflow runs on relevant pushes to `main` and also supports manual runs. Builds are unsigned; publisher identity is not verified by Windows.
+**[Download the Windows executable →](https://github.com/Sam4d/Manifest/releases/latest/download/SiteAtlas-Windows-x64.exe)**
+
+Or open [Releases](https://github.com/Sam4d/Manifest/releases/latest) for the installer and SHA-256 checksums. Releases are published automatically after successful Windows checks and packaging. Builds are unsigned; publisher identity is not verified by Windows.
 
 **[Read the illustrated usage guide →](docs/USER-GUIDE.md)**
 

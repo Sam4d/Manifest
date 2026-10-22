@@ -81,12 +81,12 @@ Click **How to use SiteAtlas** in the sidebar or the question-mark button at the
 
 ## Windows installation
 
-- **Installer:** run `SiteAtlas-0.2.0-x64-Setup.exe`, choose an install location, and launch from the Start menu or desktop shortcut.
-- **Portable:** run `SiteAtlas-0.2.0-x64-portable.exe`. No Node.js or separate Electron installation is needed. It extracts its runtime to a temporary directory while running.
+- **Installer:** run `SiteAtlas-0.2.1-x64-Setup.exe`, choose an install location, and launch from the Start menu or desktop shortcut.
+- **Portable:** run `SiteAtlas-0.2.1-x64-portable.exe`. No Node.js or separate Electron installation is needed. It extracts its runtime to a temporary directory while running.
 - Windows 10/11 **64-bit** is the target. ARM and 32-bit Windows are not included.
 - Builds are unsigned. Windows may show an unknown-publisher or SmartScreen prompt. Verify where you downloaded the executable and its checksum. A signing certificate is not included.
 
-To get a fresh GitHub build, open **Actions → Windows executable → latest successful run → Artifacts → SiteAtlas-Windows-x64**. The artifact contains both executables. The workflow runs automatically when app/build files change on `main`, and can also be started manually.
+[Download the portable Windows executable](https://github.com/Sam4d/Manifest/releases/latest/download/SiteAtlas-Windows-x64.exe), or open [Releases](https://github.com/Sam4d/Manifest/releases/latest) for the installer and SHA-256 checksums. Each new version is published after successful native Windows checks and packaging. The download is named `SiteAtlas-Windows-x64.exe` for a stable direct link.
 
 ## Troubleshooting
 
