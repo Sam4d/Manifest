@@ -28,7 +28,14 @@ async function freePort() {
     log = "",
     id = 0;
   const pending = new Map();
-  let state;
+  let state, command;
+  const hardDeadline = setTimeout(() => {
+    console.error(
+      "Packaged executable test exceeded 180 seconds",
+      JSON.stringify(state),
+    );
+    process.exit(1);
+  }, 180000);
   try {
     child = spawn(
       path.resolve(executable),
@@ -81,7 +88,7 @@ async function freePort() {
           : request.resolve(message.result);
       }
     });
-    const command = (method, params = {}) =>
+    command = (method, params = {}) =>
       new Promise((resolve, reject) => {
         const requestId = ++id;
         const timer = setTimeout(() => {
@@ -102,6 +109,19 @@ async function freePort() {
       return result.result.value;
     };
     await command("Runtime.enable");
+    let ready = false;
+    for (let attempt = 0; attempt < 100; attempt++) {
+      ready = await evaluate(
+        "typeof document.getElementById('sample')?.onclick === 'function'",
+      );
+      if (ready) break;
+      await delay(100);
+    }
+    assert.equal(
+      ready,
+      true,
+      "Packaged renderer never initialized its controls",
+    );
     assert.match(await evaluate("document.title"), /PageTrace/);
     await evaluate("document.getElementById('sample').click()");
     for (let attempt = 0; attempt < 240; attempt++) {
@@ -164,6 +184,8 @@ ${JSON.stringify({ error: error.message, state, log }, null, 2)}
     console.error(log);
     throw error;
   } finally {
+    if (command && ws?.readyState === 1)
+      await command("Browser.close").catch(() => {});
     ws?.close();
     for (const request of pending.values()) {
       clearTimeout(request.timer);
