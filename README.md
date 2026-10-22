@@ -4,7 +4,7 @@
 
 ## Run
 
-Requires Node.js 22 or newer and a graphical desktop (Windows, macOS, or Linux).
+Requires Node.js 22.12 or newer and a graphical desktop (Windows, macOS, or Linux).
 
 ```sh
 npm ci
