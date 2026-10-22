@@ -194,6 +194,10 @@ ${JSON.stringify({ error: error.message, state, log }, null, 2)}
     pending.clear();
     await delay(1000);
     if (child && child.exitCode === null) child.kill();
+    child?.stdout?.destroy();
+    child?.stderr?.destroy();
+    child?.unref();
+    clearTimeout(hardDeadline);
     await fs
       .rm(profile, {
         recursive: true,

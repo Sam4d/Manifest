@@ -10,14 +10,31 @@ on:
       - "package*.json"
       - "build/**"
       - ".github/workflows/desktop-build.yml"
+concurrency:
+  group: pagetrace-windows-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
   windows:
     permissions:
       contents: write
+      actions: write
     runs-on: windows-latest
     steps:
+      - name: Cancel obsolete Windows test runs
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          $runs = gh run list --workflow desktop-build.yml --branch main --status in_progress --limit 20 --json databaseId | ConvertFrom-Json
+          foreach ($run in $runs) {
+            if ([long]$run.databaseId -lt [long]$env:GITHUB_RUN_ID) {
+              gh run cancel $run.databaseId
+            }
+          }
+          exit 0
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
