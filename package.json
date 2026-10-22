@@ -1,0 +1,42 @@
+{
+  "name": "sitesieve",
+  "version": "0.1.0",
+  "description": "An offline blueprint for your next website",
+  "main": "src/main.cjs",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test",
+    "package": "electron-builder --dir",
+    "dist": "electron-builder",
+    "test:desktop": "electron scripts/desktop-smoke.cjs"
+  },
+  "devDependencies": {
+    "electron": "^45.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "app.sitesieve.desktop",
+    "productName": "SiteSieve",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Development"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    }
+  },
+  "dependencies": {
+    "parse5": "^8.0.1"
+  },
+  "author": "SiteSieve contributors"
+}
