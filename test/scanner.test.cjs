@@ -63,7 +63,7 @@ test("scans structure and exports source with placeholders without modifying ori
     "utf8",
   );
   assert(!copy.includes("<video"));
-  assert(copy.includes("SITEATLAS-PLACEHOLDER.svg"));
+  assert(copy.includes("PAGETRACE-PLACEHOLDER.svg"));
   await assert.rejects(
     fs.stat(path.join(result.path, "lightweight/media/demo.mp4")),
   );
@@ -125,7 +125,7 @@ test("HTML entities and nested layout are parsed and user files never collide wi
     path.join(site, "index.html"),
     '<title>A &amp; B</title><main id="app"><section class="hero wide"><h1>Hello &amp; welcome</h1><p>Important content</p></section></main>',
   );
-  await fs.writeFile(path.join(site, "SITEATLAS-PLACEHOLDER.svg"), "original");
+  await fs.writeFile(path.join(site, "PAGETRACE-PLACEHOLDER.svg"), "original");
   const s = await scan(site);
   assert.equal(s.pages[0].title, "A & B");
   assert.equal(s.pages[0].headings[0].text, "Hello & welcome");
@@ -136,7 +136,7 @@ test("HTML entities and nested layout are parsed and user files never collide wi
   const r = await exportBundle(s, out);
   assert.equal(
     await fs.readFile(
-      path.join(r.path, "lightweight/SITEATLAS-PLACEHOLDER.svg"),
+      path.join(r.path, "lightweight/PAGETRACE-PLACEHOLDER.svg"),
       "utf8",
     ),
     "original",

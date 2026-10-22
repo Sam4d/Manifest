@@ -1,10 +1,15 @@
-# SiteAtlas
+# PageTrace
 
 ### See the website. Not the baggage.
 
+[![Checks](https://github.com/Sam4d/Manifest/actions/workflows/checks.yml/badge.svg)](https://github.com/Sam4d/Manifest/actions/workflows/checks.yml)
+[![Windows executable](https://github.com/Sam4d/Manifest/actions/workflows/desktop-build.yml/badge.svg)](https://github.com/Sam4d/Manifest/actions/workflows/desktop-build.yml)
+
+**Offline website analyzer · HTML structure explorer · Asset inventory · AI-ready manifest extractor**
+
 An offline desktop app that maps a local website folder, explains its structure, and exports a lightweight blueprint for rebuilding it with your own content and media.
 
-![SiteAtlas desktop overview](docs/images/02-overview.png)
+![PageTrace desktop overview](docs/images/02-overview.png)
 
 ## Get the Windows app
 
@@ -13,11 +18,21 @@ Two self-contained **Windows 10/11 x64** executables are built:
 - **Setup** — an installer with a location picker and Start menu / desktop shortcuts.
 - **Portable** — run without installing. Node.js is not required.
 
-**[Download the Windows executable →](https://github.com/Sam4d/Manifest/releases/latest/download/SiteAtlas-Windows-x64.exe)**
+**[Download the Windows executable →](https://github.com/Sam4d/Manifest/releases/latest/download/PageTrace-Windows-x64.exe)**
 
 Or open [Releases](https://github.com/Sam4d/Manifest/releases/latest) for the installer and SHA-256 checksums. Releases are published automatically after successful Windows checks and packaging. Builds are unsigned; publisher identity is not verified by Windows.
 
 **[Read the illustrated usage guide →](docs/USER-GUIDE.md)**
+
+## Light or dark. Always local.
+
+| White + emerald (`#00674F`)                          | Matching dark mode                                       |
+| ---------------------------------------------------- | -------------------------------------------------------- |
+| ![PageTrace light mode](docs/images/02-overview.png) | ![PageTrace dark mode](docs/images/07-dark-overview.png) |
+
+Choose **Light**, **Dark**, or **Auto** in the top bar. Your selection is remembered. Auto follows your device’s theme. Every view, the file inspector, input control, and dialog uses the selected palette. Reduced-motion preferences are respected.
+
+**Interactive controls:** search paths, filter export decisions, sort files by size/path, inspect references, expand page outlines, cancel scans, and open the last export in Explorer. Use **Ctrl/Cmd + K** to search files and **Ctrl/Cmd + Shift + L** to switch light/dark.
 
 ## Three steps to a fresh start
 
@@ -44,14 +59,14 @@ See the [visual guide](docs/USER-GUIDE.md) for a walkthrough of every screen, ex
 | `report.html`                                     | Readable page structure, element outlines, technology clues, asset decisions, exclusions, and warnings.                                                                       |
 | `manifest.json`                                   | File sizes, decisions, timestamps, parsed-source hashes, static references, page headings, content excerpts, metadata, nested elements, and dependency-based framework clues. |
 | `lightweight/`                                    | Retained source and smaller assets, with supported HTML media placeholders.                                                                                                   |
-| `lightweight/.siteatlas-*/SITEATLAS-OMITTED.json` | Checklist of omitted assets to replace with your own.                                                                                                                         |
+| `lightweight/.pagetrace-*/PAGETRACE-OMITTED.json` | Checklist of omitted assets to replace with your own.                                                                                                                         |
 | `REBUILD.md`                                      | AI handoff guidance and reconstruction limitations.                                                                                                                           |
 
 Video/audio are always omitted; other binary assets are omitted above the selected cutoff (default 5 MiB). Source is retained regardless of size. The app omits media rather than compressing it. Reports and placeholder overhead are not included in retained-byte estimates.
 
 ## Analysis and privacy limits
 
-Layout is inferred from static HTML, not browser rendering. SiteAtlas does **not** execute scripts, compile the site, infer all dynamic routes, decompress archives, or produce a pixel-perfect clone. CSS/JS/srcset/runtime media references may need manual replacement. Source above 2 MiB is inventoried/copied but not parsed; HTML rewriting follows the same limit. Outlines are capped at 2,000 elements and a bounded nesting depth.
+Layout is inferred from static HTML, not browser rendering. PageTrace does **not** execute scripts, compile the site, infer all dynamic routes, decompress archives, or produce a pixel-perfect clone. CSS/JS/srcset/runtime media references may need manual replacement. Source above 2 MiB is inventoried/copied but not parsed; HTML rewriting follows the same limit. Outlines are capped at 2,000 elements and a bounded nesting depth.
 
 Symlinks, common dependency/cache directories, and recognizable credential filenames (`.env*`, private keys, `.npmrc`, etc.) are excluded. This is **not a secret detector**: inspect source and exports before sharing them. Use a stable local copy and avoid changing files while scanning/exporting. The renderer uses context isolation, sandboxing, restricted IPC, a local-only content policy, and blocked navigation/new windows.
 
@@ -97,3 +112,16 @@ node src/cli.cjs /path/to/website /path/to/export-parent
 Tests cover source preservation, credentials and symlinks, nested destinations, changed files, HTML escaping, entity decoding, nested layouts, output collisions, cancellation, and a sparse 2.5 GB file. Desktop checks cover validation, navigation, filtering, the file inspector, exports, guide, and sample scanning.
 
 Production npm dependencies currently have no reported advisories. The electron-builder build-only chain has eight moderate audit findings through its transitive `sprintf-js` dependency; `npm audit fix` does not currently resolve them. Those build helpers are not shipped in the desktop app.
+
+## Documentation
+
+- [Illustrated user guide](docs/USER-GUIDE.md): every screen, ten real screenshots, themes, shortcuts, exports, Windows setup, and troubleshooting.
+- [Manifest reference](docs/MANIFEST.md): schema, field meanings, static-reference limits, and an AI reconstruction prompt.
+- [Architecture and development](docs/ARCHITECTURE.md): processes, IPC, offline/privacy boundaries, performance, testing, and release workflow.
+- [Changelog](CHANGELOG.md): what changed and upgrade notes.
+
+## Discoverability and keywords
+
+PageTrace is useful for **offline website analysis, local website auditing, website structure mapping, HTML hierarchy inspection, CSS and JavaScript inventory, asset size analysis, heavy media removal, AI context preparation, source-code reconstruction, website redesign planning, JSON manifest extraction, and Windows desktop development**.
+
+These terms describe the implemented workflow. PageTrace is not a live-site crawler, media compressor, browser renderer, or automatic website cloning service.

@@ -24,15 +24,15 @@ function validateThreshold(value) {
 function progress(p) {
   if (window && !window.isDestroyed()) window.webContents.send("progress", p);
 }
-app.setName("SiteAtlas");
+app.setName("PageTrace");
 app.whenReady().then(() => {
   window = new BrowserWindow({
     width: 1440,
     height: 1050,
     minWidth: 1060,
     minHeight: 760,
-    title: "SiteAtlas",
-    backgroundColor: "#f7f8fa",
+    title: "PageTrace",
+    backgroundColor: "#ffffff",
     icon: path.join(__dirname, "assets/icon.png"),
     autoHideMenuBar: true,
     webPreferences: {

@@ -3,7 +3,7 @@ let data = null,
   operation = null,
   activeView = "overview";
 const NS = "http://www.w3.org/2000/svg";
-const palette = ["#579d7f", "#a6d8c0", "#77b79b", "#d9eae0"];
+const palette = ["#00674F", "#77bfa6", "#42a387", "#b6d3c8"];
 const categories = ["Source code", "Images", "Video & audio", "Other assets"];
 const titles = {
   overview: [
@@ -81,7 +81,7 @@ function navigate(view) {
     pages: "Pages & structure",
     files: "Files & assets",
     insights: "Technology & notes",
-    guide: "How to use SiteAtlas",
+    guide: "How to use PageTrace",
   }[view];
 }
 document
@@ -324,6 +324,13 @@ function renderFiles() {
         f.path.toLowerCase().includes(query) &&
         (decision === "all" || f.decision === decision),
     );
+  files.sort((a, b) =>
+    $("file-sort").value === "largest"
+      ? b.bytes - a.bytes
+      : $("file-sort").value === "smallest"
+        ? a.bytes - b.bytes
+        : a.path.localeCompare(b.path),
+  );
   $("file-list").replaceChildren(
     ...files.slice(0, 500).map((f) => {
       const row = document.createElement("tr"),
@@ -420,8 +427,8 @@ async function beginScan(sample = false) {
   );
   try {
     const result = sample
-      ? await window.siteAtlas.sample(threshold)
-      : await window.siteAtlas.scan(threshold);
+      ? await window.pageTrace.sample(threshold)
+      : await window.pageTrace.scan(threshold);
     if (result) {
       data = result;
       $("search").value = "";
@@ -455,7 +462,7 @@ $("scan").onclick = () => beginScan();
 $("sample").onclick = () => beginScan(true);
 $("cancel").onclick = async () => {
   try {
-    await window.siteAtlas.cancel();
+    await window.pageTrace.cancel();
   } catch (e) {
     message(e.message, "error");
   }
@@ -467,7 +474,7 @@ $("export").onclick = async () => {
     "info",
   );
   try {
-    const result = await window.siteAtlas.export();
+    const result = await window.pageTrace.export();
     if (result) {
       message(
         `Exported to ${result.path}${result.warnings.length ? ` · ${result.warnings.length} export warnings. Check report.html before rebuilding.` : ". Your report, manifest, and source are ready."}`,
@@ -487,12 +494,12 @@ $("export").onclick = async () => {
 };
 $("open-export").onclick = async () => {
   try {
-    await window.siteAtlas.openExport();
+    await window.pageTrace.openExport();
   } catch (e) {
     message(e.message, "error");
   }
 };
-window.siteAtlas.onProgress((p) => {
+window.pageTrace.onProgress((p) => {
   $("progress-detail").textContent =
     operation === "export"
       ? `${p.files.toLocaleString()} files processed · ${size(p.bytes)} retained`
@@ -504,3 +511,30 @@ renderFiles();
 $("frameworks").append(text("span", "Choose a folder to detect technologies."));
 $("warnings").append(text("li", "Scan a website to see its analysis notes."));
 $("skipped").append(text("li", "Exclusions will appear after scanning."));
+
+$("file-sort").onchange = renderFiles;
+$("expand-outlines").onclick = () => {
+  const items = [...document.querySelectorAll(".page-card details")];
+  const expand = items.some((item) => !item.open);
+  items.forEach((item) => (item.open = expand));
+  $("expand-outlines").textContent = expand
+    ? "Collapse all outlines"
+    : "Expand all outlines";
+};
+document.addEventListener("keydown", (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+    event.preventDefault();
+    navigate("files");
+    $("search").focus();
+  }
+  if (
+    (event.ctrlKey || event.metaKey) &&
+    event.shiftKey &&
+    event.key.toLowerCase() === "l"
+  ) {
+    event.preventDefault();
+    window.pageTraceAppearance.set(
+      document.documentElement.dataset.theme === "dark" ? "light" : "dark",
+    );
+  }
+});

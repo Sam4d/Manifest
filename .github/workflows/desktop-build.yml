@@ -31,7 +31,7 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
       - uses: actions/upload-artifact@v4
         with:
-          name: SiteAtlas-Windows-x64
+          name: PageTrace-Windows-x64
           path: dist/*.exe
           if-no-files-found: error
           retention-days: 30
@@ -43,13 +43,13 @@ jobs:
         run: |
           $version = (Get-Content package.json | ConvertFrom-Json).version
           $tag = "v$version"
-          Copy-Item "dist/SiteAtlas-$version-x64-portable.exe" "dist/SiteAtlas-Windows-x64.exe"
-          $files = @("dist/SiteAtlas-Windows-x64.exe", "dist/SiteAtlas-$version-x64-Setup.exe")
+          Copy-Item "dist/PageTrace-$version-x64-portable.exe" "dist/PageTrace-Windows-x64.exe"
+          $files = @("dist/PageTrace-Windows-x64.exe", "dist/PageTrace-$version-x64-Setup.exe")
           $lines = $files | ForEach-Object { $hash = (Get-FileHash $_ -Algorithm SHA256).Hash.ToLower(); "$hash  $(Split-Path $_ -Leaf)" }
           $lines | Set-Content dist/SHA256SUMS.txt
           gh release view $tag --json tagName *> $null
           if ($LASTEXITCODE -ne 0) {
-            gh release create $tag --target $env:GITHUB_SHA --title "SiteAtlas $version" --notes "White and seafoam green desktop app. Download SiteAtlas-Windows-x64.exe to run without installing. Windows x64; unsigned build."
+            gh release create $tag --target $env:GITHUB_SHA --title "PageTrace $version" --notes "PageTrace offline website analyzer. White and #00674F emerald light mode, matching dark mode, interactive file inspector, and illustrated documentation. Download PageTrace-Windows-x64.exe to run without installing. Windows x64; unsigned build."
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
           gh release upload $tag @files dist/SHA256SUMS.txt --clobber

@@ -1,7 +1,7 @@
 {
-  "name": "siteatlas",
-  "version": "0.2.1",
-  "description": "Your offline website blueprint",
+  "name": "pagetrace",
+  "version": "0.3.0",
+  "description": "Offline website structure analyzer, AI-ready manifest extractor, and lightweight source exporter",
   "main": "src/main.cjs",
   "private": true,
   "scripts": {
@@ -19,8 +19,8 @@
     "electron-builder": "^26.0.0"
   },
   "build": {
-    "appId": "app.siteatlas.desktop",
-    "productName": "SiteAtlas",
+    "appId": "app.pagetrace.desktop",
+    "productName": "PageTrace",
     "files": [
       "src/**/*",
       "package.json"
@@ -40,7 +40,7 @@
         "portable"
       ],
       "icon": "build/icon.ico",
-      "artifactName": "SiteAtlas-${version}-${arch}-Setup.${ext}",
+      "artifactName": "PageTrace-${version}-${arch}-Setup.${ext}",
       "signExecutable": false
     },
     "icon": "src/assets/icon.png",
@@ -48,10 +48,11 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false
     },
     "portable": {
-      "artifactName": "SiteAtlas-${version}-${arch}-portable.exe"
+      "artifactName": "PageTrace-${version}-${arch}-portable.exe"
     },
     "electronLanguages": [
       "en-US"
@@ -60,8 +61,22 @@
   "dependencies": {
     "parse5": "^8.0.1"
   },
-  "author": "SiteAtlas contributors",
+  "author": "PageTrace contributors",
   "engines": {
     "node": ">=22.12.0"
-  }
+  },
+  "keywords": [
+    "website-analyzer",
+    "offline",
+    "website-structure",
+    "manifest",
+    "html",
+    "css",
+    "asset-inventory",
+    "website-reconstruction",
+    "ai-context",
+    "electron",
+    "desktop",
+    "windows"
+  ]
 }

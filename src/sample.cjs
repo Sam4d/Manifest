@@ -2,7 +2,7 @@ const fs = require("node:fs/promises");
 const path = require("node:path");
 const os = require("node:os");
 async function createSample() {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "SiteAtlas-sample-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "PageTrace-sample-"));
   const site = path.join(root, "Northstar Studio");
   for (const dir of ["styles", "scripts", "images", "media", "work", "about"])
     await fs.mkdir(path.join(site, dir), { recursive: true });
@@ -34,7 +34,7 @@ async function createSample() {
   );
   await fs.writeFile(
     path.join(site, "scripts/main.js"),
-    '// Example source. SiteAtlas never executes website code.\nexport const studio = "Northstar";',
+    '// Example source. PageTrace never executes website code.\nexport const studio = "Northstar";',
   );
   await fs.writeFile(
     path.join(site, "package.json"),

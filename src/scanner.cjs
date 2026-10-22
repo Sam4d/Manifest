@@ -326,7 +326,7 @@ function publicManifest(scan) {
   return data;
 }
 function report(s) {
-  return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'"><title>SiteAtlas report</title><style>body{font:16px system-ui;background:#10151b;color:#e6edf3;max-width:1000px;margin:48px auto;padding:24px}h1,h2{color:#b8f278}table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:10px;border-bottom:1px solid #35404b}code{overflow-wrap:anywhere}small{color:#a6b2bf}</style></head><body><h1>${escape(s.name)} / SiteAtlas</h1><p>${s.files.length} files · ${s.pages.length} HTML pages · ${(s.totalBytes / 1048576).toFixed(1)} MiB scanned · ${(s.retainedBytes / 1048576).toFixed(1)} MiB selected</p><h2>Technology</h2><p>${escape(s.frameworks.join(", ") || "No package-based framework detected")}</p><p>${escape(
+  return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'"><title>PageTrace report</title><style>body{font:16px system-ui;background:#ffffff;color:#143d32;max-width:1000px;margin:48px auto;padding:24px}h1,h2{color:#00674F}table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:10px;border-bottom:1px solid #dfebe5}code{overflow-wrap:anywhere}small{color:#a6b2bf}</style></head><body><h1>${escape(s.name)} / PageTrace</h1><p>${s.files.length} files · ${s.pages.length} HTML pages · ${(s.totalBytes / 1048576).toFixed(1)} MiB scanned · ${(s.retainedBytes / 1048576).toFixed(1)} MiB selected</p><h2>Technology</h2><p>${escape(s.frameworks.join(", ") || "No package-based framework detected")}</p><p>${escape(
     Object.entries(s.languages)
       .map(([k, v]) => `${k}: ${v}`)
       .join(" · "),
@@ -348,7 +348,7 @@ async function exportBundle(s, destination, progress = () => {}) {
     parent = await fs.realpath(destination);
   if (inside(source, parent))
     throw Error("Choose an export folder outside the source website.");
-  const out = await fs.mkdtemp(path.join(parent, "SiteAtlas-"));
+  const out = await fs.mkdtemp(path.join(parent, "PageTrace-"));
   const lightweight = path.join(out, "lightweight");
   await fs.mkdir(lightweight);
   const exported = { ...publicManifest(s), exportWarnings: [] };
@@ -390,17 +390,17 @@ async function exportBundle(s, destination, progress = () => {}) {
   }
   const omitted = s.files.filter((f) => f.decision === "omit");
   const omittedPaths = new Set(omitted.map((f) => f.path));
-  const helper = await fs.mkdtemp(path.join(lightweight, ".siteatlas-"));
+  const helper = await fs.mkdtemp(path.join(lightweight, ".pagetrace-"));
   const helperName = path.basename(helper);
   exported.placeholderDirectory = "lightweight/" + helperName;
   await fs.writeFile(
-    path.join(helper, "SITEATLAS-OMITTED.json"),
+    path.join(helper, "PAGETRACE-OMITTED.json"),
     JSON.stringify(omitted, null, 2),
     { flag: "wx" },
   );
   await fs.writeFile(
-    path.join(helper, "SITEATLAS-PLACEHOLDER.svg"),
-    '<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540"><rect width="100%" height="100%" fill="#18232b"/><text x="50%" y="50%" fill="#b8f278" text-anchor="middle" font-family="sans-serif" font-size="28">Media removed by SiteAtlas</text></svg>',
+    path.join(helper, "PAGETRACE-PLACEHOLDER.svg"),
+    '<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540"><rect width="100%" height="100%" fill="#eff8f3"/><text x="50%" y="50%" fill="#00674F" text-anchor="middle" font-family="sans-serif" font-size="28">Media removed by PageTrace</text></svg>',
     { flag: "wx" },
   );
   // Rewrite explicit HTML media elements, preserving source separately in the manifest.
@@ -415,11 +415,11 @@ async function exportBundle(s, destination, progress = () => {}) {
       let html = await fs.readFile(target, "utf8");
       const placeholder = path.posix.relative(
         path.posix.dirname(f.path),
-        helperName + "/SITEATLAS-PLACEHOLDER.svg",
+        helperName + "/PAGETRACE-PLACEHOLDER.svg",
       );
       html = html.replace(
         /<(video|audio)\b[^>]*>[\s\S]*?<\/\1\s*>/gi,
-        `<img src="${escape(placeholder)}" alt="Media omitted by SiteAtlas" style="max-width:100%;height:auto">`,
+        `<img src="${escape(placeholder)}" alt="Media omitted by PageTrace" style="max-width:100%;height:auto">`,
       );
       for (const ref of f.references.filter(
         (r) => r.resolved && omittedPaths.has(r.resolved),
@@ -447,7 +447,7 @@ async function exportBundle(s, destination, progress = () => {}) {
   );
   await fs.writeFile(
     path.join(out, "REBUILD.md"),
-    `# ${s.name}: reconstruction brief\n\nUse manifest.json for file relationships, page headings, structural elements, technology clues, and asset decisions. Source is in lightweight/. Replace media using lightweight/${helperName}/SITEATLAS-OMITTED.json. HTML video/audio elements have generic image placeholders; CSS and JavaScript media references may still require editing.\n\nThis is a static source inventory, not a compiled or pixel-exact recreation. Dependencies, credentials, symlinks, and caches were excluded. Inspect exported source for proprietary content or unrecognized secrets before sharing it with an AI. Source code has not been executed or sanitized for safe execution.\n`,
+    `# ${s.name}: reconstruction brief\n\nUse manifest.json for file relationships, page headings, structural elements, technology clues, and asset decisions. Source is in lightweight/. Replace media using lightweight/${helperName}/PAGETRACE-OMITTED.json. HTML video/audio elements have generic image placeholders; CSS and JavaScript media references may still require editing.\n\nThis is a static source inventory, not a compiled or pixel-exact recreation. Dependencies, credentials, symlinks, and caches were excluded. Inspect exported source for proprietary content or unrecognized secrets before sharing it with an AI. Source code has not been executed or sanitized for safe execution.\n`,
   );
   progress({ files: s.files.length, bytes: copiedBytes });
   return { path: out, warnings: exported.exportWarnings };

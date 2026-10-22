@@ -15,7 +15,7 @@ async function waitFor(window, expression) {
 }
 (async () => {
   const temporary = await fs.mkdtemp(
-    path.join(os.tmpdir(), "siteatlas-desktop-"),
+    path.join(os.tmpdir(), "pagetrace-desktop-"),
   );
   app.setPath("userData", path.join(temporary, "profile"));
   const source = path.join(temporary, "website"),
@@ -24,7 +24,7 @@ async function waitFor(window, expression) {
   await fs.mkdir(out);
   await fs.writeFile(
     path.join(source, "index.html"),
-    '<title>Desktop fixture</title><main><h1>Hello SiteAtlas</h1><video src="movie.mp4"></video></main>',
+    '<title>Desktop fixture</title><main><h1>Hello PageTrace</h1><video src="movie.mp4"></video></main>',
   );
   await fs.writeFile(path.join(source, "movie.mp4"), Buffer.alloc(1024));
   let picks = 0;
@@ -35,7 +35,7 @@ async function waitFor(window, expression) {
   const timer = setTimeout(() => {
     console.error("Desktop smoke test timeout");
     app.exit(1);
-  }, 45000);
+  }, 60000);
   app.on("browser-window-created", (_event, window) => {
     const errors = [];
     window.webContents.on("console-message", (event) => {
@@ -45,12 +45,37 @@ async function waitFor(window, expression) {
       try {
         const run = (code) => window.webContents.executeJavaScript(code);
         const screenshot = async (name) => {
-          await new Promise((r) => setTimeout(r, 150));
+          await new Promise((r) => setTimeout(r, 250));
           await fs.writeFile(
             path.join(output, name + ".png"),
             (await window.webContents.capturePage()).toPNG(),
           );
         };
+        await run("document.querySelector('[data-appearance=dark]').click()");
+        assert.equal(
+          await run("document.documentElement.dataset.theme"),
+          "dark",
+        );
+        await new Promise((resolve) => {
+          window.webContents.once("did-finish-load", resolve);
+          window.webContents.reload();
+        });
+        assert.equal(
+          await run("document.documentElement.dataset.themeMode"),
+          "dark",
+          "Appearance persists after reload",
+        );
+        assert.equal(
+          await run("getComputedStyle(document.body).backgroundColor"),
+          "rgb(10, 21, 18)",
+        );
+        await run("document.querySelector('[data-appearance=light]').click()");
+        assert.equal(
+          await run(
+            "getComputedStyle(document.documentElement).getPropertyValue('--brand').trim()",
+          ),
+          "#00674f",
+        );
         if (screenshots) {
           await fs.mkdir(output, { recursive: true });
           window.setSize(1560, 1520);
@@ -140,6 +165,29 @@ async function waitFor(window, expression) {
           await run("document.getElementById('open-export').hidden"),
           true,
         );
+        await run(
+          "document.dispatchEvent(new KeyboardEvent('keydown',{key:'k',ctrlKey:true,bubbles:true}))",
+        );
+        assert.equal(await run("document.activeElement.id"), "search");
+        await run(
+          "document.getElementById('file-sort').value='largest';document.getElementById('file-sort').dispatchEvent(new Event('change'))",
+        );
+        assert.match(
+          await run("document.querySelector('#file-list tr td').textContent"),
+          /studio-reel/,
+        );
+        await run(
+          "document.querySelector('[data-view=pages]').click();document.getElementById('expand-outlines').click()",
+        );
+        assert.equal(
+          await run(
+            "[...document.querySelectorAll('.page-card details')].every(d=>d.open)",
+          ),
+          true,
+        );
+        await run(
+          "document.getElementById('expand-outlines').click();document.querySelector('[data-view=overview]').click()",
+        );
         window.setSize(1060, 760);
         await new Promise((resolve) => setTimeout(resolve, 100));
         assert.equal(
@@ -169,6 +217,21 @@ async function waitFor(window, expression) {
           await screenshot("05-insights");
           await run("document.getElementById('help').click()");
           await screenshot("06-guide");
+          await run(
+            "document.querySelector('[data-appearance=dark]').click();document.querySelector('[data-view=overview]').click()",
+          );
+          await screenshot("07-dark-overview");
+          await run("document.querySelector('[data-view=pages]').click()");
+          await screenshot("08-dark-structure");
+          await run("document.querySelector('[data-view=files]').click()");
+          await screenshot("09-dark-files");
+          await run(
+            "document.getElementById('search').value='index.html';document.getElementById('search').dispatchEvent(new Event('input'));document.querySelector('.file-open').click()",
+          );
+          await screenshot("10-dark-inspector");
+          await run(
+            "document.getElementById('close-dialog').click();document.querySelector('[data-appearance=light]').click()",
+          );
         }
         assert.equal(errors.length, 0, errors.join("\n"));
         console.log(

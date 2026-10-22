@@ -1,5 +1,5 @@
 const { contextBridge, ipcRenderer } = require("electron");
-contextBridge.exposeInMainWorld("siteAtlas", {
+contextBridge.exposeInMainWorld("pageTrace", {
   scan: (threshold) => ipcRenderer.invoke("scan", threshold),
   sample: (threshold) => ipcRenderer.invoke("sample", threshold),
   cancel: () => ipcRenderer.invoke("cancel"),

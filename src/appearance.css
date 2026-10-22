@@ -1,0 +1,491 @@
+/* PageTrace design tokens. The requested brand accent is exactly #00674F. */
+:root {
+  --brand: #00674f;
+  --nav: #f3faf7;
+  --bg: #ffffff;
+  --paper: #ffffff;
+  --ink: #143d32;
+  --muted: #627b72;
+  --line: #dfebe5;
+  --teal: var(--brand);
+  --teal-light: #e5f5ed;
+  --subtle: #f5faf7;
+  --soft: #e8f5ee;
+  --accent-text: #00674f;
+  --shadow: 0 5px 24px #063d2306;
+  --focus: #399c7d;
+}
+html[data-theme="dark"] {
+  --nav: #0d1d18;
+  --bg: #0a1512;
+  --paper: #11241d;
+  --ink: #e0f0e8;
+  --muted: #99b8aa;
+  --line: #274035;
+  --teal: #00674f;
+  --teal-light: #173c2e;
+  --subtle: #142d23;
+  --soft: #193d2f;
+  --accent-text: #87d8b8;
+  --shadow: 0 5px 24px #00000015;
+  --focus: #87d8b8;
+}
+body,
+header,
+.card,
+.metrics article,
+.project-card,
+.table-wrap,
+dialog,
+.nav,
+.button {
+  transition:
+    background-color 0.18s,
+    border-color 0.18s,
+    color 0.18s,
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+.sidebar {
+  background: var(--nav);
+  color: var(--ink);
+  border-right: 1px solid var(--line);
+}
+.brand-mark {
+  color: var(--accent-text);
+}
+.brand > div:last-child > span {
+  color: var(--muted);
+}
+.workspace-tag {
+  background: var(--paper);
+  border-color: var(--line);
+  color: var(--muted);
+}
+.keycap {
+  background: var(--subtle);
+  border-color: var(--line);
+  color: var(--muted);
+}
+.nav-label,
+.version {
+  color: var(--muted);
+}
+.nav {
+  color: var(--muted);
+}
+.nav:hover {
+  background: var(--soft);
+  color: var(--ink);
+}
+.nav.active {
+  background: var(--soft);
+  color: var(--accent-text);
+  box-shadow: inset 3px 0 var(--brand);
+}
+.nav-count,
+.nav.active .nav-count {
+  background: var(--paper);
+  color: var(--accent-text);
+}
+.sidebar-note {
+  background: linear-gradient(135deg, var(--soft), var(--nav));
+  border-color: var(--line);
+}
+.note-art,
+.sample-link {
+  color: var(--accent-text);
+}
+.sidebar-note p {
+  color: var(--muted);
+}
+.sample-link,
+.privacy {
+  border-color: var(--line);
+}
+.privacy,
+.privacy span,
+.privacy svg {
+  color: var(--muted);
+}
+header {
+  background: var(--paper);
+}
+.breadcrumbs,
+.breadcrumbs span {
+  color: var(--muted);
+}
+.breadcrumbs strong {
+  color: var(--ink);
+}
+h1 span {
+  color: var(--accent-text);
+}
+.eyebrow,
+.page-heading p {
+  color: var(--muted);
+}
+.offline-pill {
+  color: var(--accent-text);
+}
+.live-dot {
+  background: #42a387;
+}
+.appearance-switch {
+  display: flex;
+  gap: 3px;
+  padding: 4px;
+  background: var(--subtle);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+.appearance-switch button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 550;
+  padding: 7px 10px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+.appearance-switch button:hover {
+  color: var(--ink);
+}
+.appearance-switch button[aria-pressed="true"] {
+  background: var(--paper);
+  color: var(--accent-text);
+  box-shadow: 0 1px 5px #0000000a;
+}
+.primary {
+  background: var(--brand);
+  color: #fff;
+  border-color: var(--brand);
+}
+.primary:hover:not(:disabled) {
+  background: #00513e;
+}
+.secondary {
+  background: var(--paper);
+  color: var(--accent-text);
+  border-color: var(--line);
+}
+.icon-button {
+  background: var(--paper);
+  color: var(--muted);
+  border-color: var(--line);
+}
+button:focus-visible,
+summary:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+.workflow {
+  border-color: var(--line);
+}
+.step b,
+.step small,
+.workflow-safe {
+  color: var(--muted);
+}
+.step-number {
+  background: var(--paper);
+  border-color: var(--line);
+  color: var(--muted);
+}
+.step.active .step-number,
+.step.complete .step-number {
+  background: var(--soft);
+  color: var(--accent-text);
+  border-color: var(--line);
+}
+.step.active b {
+  color: var(--accent-text);
+}
+.step-connector {
+  background: var(--line);
+}
+.card,
+.metrics article,
+.project-card,
+.page-card,
+.scan-settings,
+.table-wrap,
+dialog {
+  background: var(--paper);
+  border-color: var(--line);
+  color: var(--ink);
+}
+.project-icon,
+.teal,
+.blue,
+.peach {
+  background: var(--soft);
+  color: var(--accent-text);
+}
+.project-info p,
+.metrics small,
+.metric-label,
+.card-heading p,
+.subtle-label,
+.tiny-label,
+.project-right strong {
+  color: var(--muted);
+}
+.project-right {
+  border-color: var(--line);
+}
+.badge.neutral {
+  background: var(--subtle);
+  color: var(--muted);
+}
+.badge.success,
+.badge.keep {
+  background: var(--soft);
+  color: var(--accent-text);
+}
+.badge.omit {
+  background: var(--subtle);
+  color: var(--muted);
+}
+.metrics .savings-card {
+  background: var(--soft);
+  border-color: var(--line);
+}
+.savings-card strong,
+.savings-card strong span {
+  color: var(--accent-text);
+}
+.metrics strong span,
+.metric-label svg {
+  color: var(--muted);
+}
+.donut:before {
+  background: var(--paper);
+}
+.donut-center > span {
+  color: var(--ink);
+}
+.donut-center small,
+.legend-row,
+.legend-row strong,
+.legend-row small {
+  color: var(--muted);
+}
+.composition-note,
+.kit-item {
+  border-color: var(--line);
+}
+.composition-note,
+.kit-item p,
+.kit-bottom,
+.overline {
+  color: var(--muted);
+}
+.kit-item code {
+  background: var(--subtle);
+  color: var(--muted);
+}
+.kit-spark {
+  color: var(--accent-text);
+}
+.settings-intro h3,
+.settings-intro > svg {
+  color: var(--accent-text);
+}
+.settings-intro p,
+.threshold-control label,
+.threshold-control > div,
+.footnote {
+  color: var(--muted);
+}
+.threshold-control > div {
+  border-color: var(--line);
+}
+input,
+select,
+#threshold {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--line);
+}
+input::placeholder {
+  color: var(--muted);
+}
+input:focus,
+select:focus {
+  border-color: var(--focus);
+}
+footer {
+  background: var(--bg);
+  border-color: var(--line);
+}
+.footer-status {
+  color: var(--muted);
+}
+.notice,
+.notice.info {
+  background: var(--soft);
+  border-color: var(--line);
+  color: var(--accent-text);
+}
+html[data-theme="dark"] .notice.error {
+  background: #3b2423;
+  border-color: #68403b;
+  color: #f2bdb5;
+}
+.progress-panel {
+  background: var(--paper);
+  border-color: var(--line);
+}
+.progress-panel p {
+  color: var(--muted);
+}
+.indeterminate {
+  background: var(--soft);
+}
+.indeterminate > span {
+  background: var(--accent-text);
+}
+.text-button,
+.page-card code,
+summary,
+.guide-files code {
+  color: var(--accent-text);
+}
+.page-card p,
+.page-card li,
+.page-card-top,
+.page-preview-row code,
+.page-preview-row > span,
+.section-toolbar p {
+  color: var(--muted);
+}
+.element-tag,
+.tag {
+  background: var(--soft);
+  border-color: var(--line);
+  color: var(--accent-text);
+}
+pre {
+  background: var(--subtle);
+  border-color: var(--line);
+  color: var(--accent-text);
+}
+details,
+.page-preview-row {
+  border-color: var(--line);
+}
+.search-box,
+.file-tools select {
+  background: var(--paper);
+  border-color: var(--line);
+}
+th {
+  background: var(--subtle);
+  color: var(--muted);
+}
+th,
+td {
+  border-color: var(--line);
+}
+td,
+td:first-child {
+  color: var(--ink);
+}
+tbody tr:hover {
+  background: var(--subtle);
+}
+.file-open {
+  color: var(--accent-text);
+}
+.file-open:hover {
+  background: var(--soft);
+}
+.empty-state {
+  background: var(--paper);
+  border-color: var(--line);
+  color: var(--muted);
+}
+.empty-state strong {
+  color: var(--ink);
+}
+.language-row,
+.language-row > span:last-child,
+.section-label,
+.note-list,
+.card-description {
+  color: var(--muted);
+}
+.language-track {
+  background: var(--subtle);
+}
+.language-track > span {
+  background: var(--accent-text);
+}
+.guide-hero p,
+.guide-steps p,
+.guide-tip,
+.guide-files p,
+.guide-caution p {
+  color: var(--muted);
+}
+.guide-steps b {
+  color: var(--accent-text);
+}
+.guide-tip,
+.guide-files > div {
+  border-color: var(--line);
+}
+#detail-meta,
+#detail-references,
+.reference-row small {
+  color: var(--muted);
+}
+.reference-row {
+  border-color: var(--line);
+}
+.structure-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 18px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.card:hover {
+  box-shadow: 0 7px 24px #00674f0b;
+}
+.page-card:hover {
+  border-color: var(--focus);
+}
+@media (max-width: 1160px) {
+  .header-right {
+    gap: 10px;
+  }
+  .offline-pill {
+    display: none;
+  }
+  .appearance-switch button {
+    padding: 6px 8px;
+  }
+  .file-tools {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: 330px;
+  }
+  .search-box {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

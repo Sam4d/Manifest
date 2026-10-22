@@ -7,8 +7,10 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'"
     />
-    <title>SiteAtlas — A clearer view of your website</title>
+    <script src="theme.js"></script>
+    <title>PageTrace — A clearer view of your website</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="appearance.css" />
   </head>
   <body>
     <svg class="svg-library" xmlns="http://www.w3.org/2000/svg">
@@ -79,10 +81,10 @@
       <div class="brand">
         <div class="brand-mark">
           <svg viewBox="0 0 32 32">
-            <path d="m5 25 11-20 11 20M10 17h12M16 5v20" />
+            <path d="M9 3h11l6 6v20H6V3h3M20 3v7h6M11 16h10M11 21h6" />
           </svg>
         </div>
-        <div>SiteAtlas<span>THE WEBSITE BLUEPRINT</span></div>
+        <div>PageTrace<span>THE WEBSITE BLUEPRINT</span></div>
       </div>
       <div class="workspace-tag">
         <span class="live-dot"></span> Personal workspace
@@ -120,7 +122,7 @@
       </div>
       <div class="sidebar-bottom">
         <button class="nav" data-view="guide">
-          <svg><use href="#i-help" /></svg>How to use SiteAtlas
+          <svg><use href="#i-help" /></svg>How to use PageTrace
         </button>
         <div class="privacy">
           <svg><use href="#i-shield" /></svg>
@@ -128,7 +130,7 @@
             Offline by design<span>No uploads. Your files stay yours.</span>
           </div>
         </div>
-        <div class="version">SITEATLAS <span>v0.2.1</span></div>
+        <div class="version">PAGETRACE <span>v0.3.0</span></div>
       </div>
     </aside>
     <main>
@@ -137,6 +139,29 @@
           Workspace <span>/</span> <strong id="breadcrumb">Overview</strong>
         </div>
         <div class="header-right">
+          <div class="appearance-switch" role="group" aria-label="Color theme">
+            <button
+              data-appearance="light"
+              aria-pressed="false"
+              title="White and emerald"
+            >
+              Light
+            </button>
+            <button
+              data-appearance="dark"
+              aria-pressed="false"
+              title="Deep green dark mode"
+            >
+              Dark
+            </button>
+            <button
+              data-appearance="system"
+              aria-pressed="false"
+              title="Follow device appearance"
+            >
+              Auto
+            </button>
+          </div>
           <span class="offline-pill"
             ><span class="live-dot"></span> All systems local</span
           ><button id="help" class="icon-button" aria-label="Open usage guide">
@@ -394,6 +419,12 @@
             </div>
             <span class="badge neutral">SOURCE-BASED ANALYSIS</span>
           </div>
+          <div class="structure-controls">
+            <span>Explore the hierarchy behind every page.</span
+            ><button id="expand-outlines" class="text-button">
+              Expand all outlines
+            </button>
+          </div>
           <div id="page-list" class="page-list"></div>
         </div>
         <div id="files" class="view" hidden>
@@ -410,7 +441,7 @@
                 ><svg><use href="#i-search" /></svg
                 ><input
                   id="search"
-                  placeholder="Find a file…"
+                  placeholder="Find a file…  Ctrl K"
                   aria-label="Search file paths" /></label
               ><select
                 id="decision-filter"
@@ -419,6 +450,11 @@
                 <option value="all">All files</option>
                 <option value="keep">Keep in export</option>
                 <option value="omit">Omit from export</option>
+              </select>
+              <select id="file-sort" aria-label="Sort files">
+                <option value="path">Path A–Z</option>
+                <option value="largest">Largest first</option>
+                <option value="smallest">Smallest first</option>
               </select>
             </div>
           </div>
@@ -547,7 +583,7 @@
           <section class="guide-caution">
             <svg><use href="#i-shield" /></svg>
             <p>
-              <b>A blueprint, not a pixel-perfect clone.</b> SiteAtlas doesn’t
+              <b>A blueprint, not a pixel-perfect clone.</b> PageTrace doesn’t
               execute scripts, compile the website, or discover every dynamic
               route. Review source for embedded secrets before sharing it. Media
               placeholders may change the layout.
