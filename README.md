@@ -115,6 +115,8 @@ Production npm dependencies currently have no reported advisories. The electron-
 
 ## Documentation
 
+- [Portfolio and interview walkthrough](docs/PORTFOLIO.md): illustrated project explanation, resume bullets, a three-minute demo, and an evidence checklist.
+
 - [Illustrated user guide](docs/USER-GUIDE.md): every screen, ten real screenshots, themes, shortcuts, exports, Windows setup, and troubleshooting.
 - [Manifest reference](docs/MANIFEST.md): schema, field meanings, static-reference limits, and an AI reconstruction prompt.
 - [Architecture and development](docs/ARCHITECTURE.md): processes, IPC, offline/privacy boundaries, performance, testing, and release workflow.
