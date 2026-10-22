@@ -1,7 +1,7 @@
 {
-  "name": "sitesieve",
-  "version": "0.1.0",
-  "description": "An offline blueprint for your next website",
+  "name": "siteatlas",
+  "version": "0.2.0",
+  "description": "Your offline website blueprint",
   "main": "src/main.cjs",
   "private": true,
   "scripts": {
@@ -10,15 +10,17 @@
     "package": "electron-builder --dir",
     "dist": "electron-builder",
     "test:desktop": "electron scripts/desktop-smoke.cjs",
-    "postinstall": "node node_modules/electron/install.js"
+    "postinstall": "node node_modules/electron/install.js",
+    "test:desktop:ci": "electron --no-sandbox --disable-gpu scripts/desktop-smoke.cjs",
+    "dist:win": "electron-builder --win nsis portable --x64 --publish never"
   },
   "devDependencies": {
     "electron": "^45.0.0",
     "electron-builder": "^26.0.0"
   },
   "build": {
-    "appId": "app.sitesieve.desktop",
-    "productName": "SiteSieve",
+    "appId": "app.siteatlas.desktop",
+    "productName": "SiteAtlas",
     "files": [
       "src/**/*",
       "package.json"
@@ -33,13 +35,29 @@
       "target": "dmg"
     },
     "win": {
-      "target": "nsis"
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "SiteAtlas-${version}-${arch}-Setup.${ext}",
+      "signExecutable": false
+    },
+    "icon": "src/assets/icon.png",
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "portable": {
+      "artifactName": "SiteAtlas-${version}-${arch}-portable.exe"
     }
   },
   "dependencies": {
     "parse5": "^8.0.1"
   },
-  "author": "SiteSieve contributors",
+  "author": "SiteAtlas contributors",
   "engines": {
     "node": ">=22.12.0"
   }

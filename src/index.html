@@ -1,13 +1,594 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'"><title>SiteSieve</title><link rel="stylesheet" href="style.css"></head>
-<body><aside><a class="brand" href="#">◈ <span>SiteSieve<span class="brand-dot">.</span></span></a><div class="workspace-label">YOUR WORKSPACE</div><nav><button class="nav active" data-view="overview">▦ <span>Overview</span></button><button class="nav" data-view="pages">▤ <span>Pages & layout</span></button><button class="nav" data-view="files">⌘ <span>File explorer</span></button><button class="nav" data-view="insights">◷ <span>Insights</span></button></nav><div class="sidebar-bottom"><span class="status-dot"></span> Fully offline<p>Your files stay on your machine.</p><small>SiteSieve / v0.1.0</small></div></aside>
-<main><header><span>WORKSPACE <b>/</b> <span id="breadcrumb">Overview</span></span><span class="local-badge">◉ LOCAL WORKSPACE</span></header><section class="content"><div class="heading"><div><div class="eyebrow">LESS WEIGHT. MORE CLARITY.</div><h1>Your website, distilled<span>.</span></h1><p>Uncover the structure. Keep what matters. Make it yours.</p></div><button id="scan" class="primary">＋ Select website folder</button></div>
-<div id="message" role="status" aria-live="polite"></div>
-<div class="project"><div class="folder-icon">▱</div><div><h2 id="project-name">Start with a website folder</h2><p id="project-meta">HTML, styles, scripts, and assets — one clear blueprint.</p></div><span class="pill" id="project-state">READY TO SCAN</span></div>
-<div id="overview" class="view"><div class="metrics"><article><label>Total footprint <span>↗</span></label><strong id="total">—</strong><small id="file-count">Select a folder to begin</small></article><article><label>Lightweight estimate <span>↙</span></label><strong class="green" id="retained">—</strong><small>Before placeholders and report overhead</small></article><article><label>Potential reduction <span>◌</span></label><strong id="reduction">—</strong><small id="omitted">Heavy media safely excluded</small></article><article><label>Pages discovered <span>▤</span></label><strong id="pages-count">—</strong><small>Static HTML entry points</small></article></div>
-<div class="columns"><article class="panel"><div class="panel-title"><h2>What’s inside</h2><span class="muted">BY FILE SIZE</span></div><div id="composition" class="composition"><div class="empty-chart">◈<p>Your website’s composition<br>will appear here.</p></div></div><div id="legend" class="legend"></div></article><article class="panel"><div class="panel-title"><h2>A blueprint, not the baggage</h2><span class="tiny-icon">✧</span></div><p class="panel-description">Everything you need to understand a site and rebuild it with your own ideas.</p><div class="feature"><span>01</span><div><h3>Structure report</h3><p>Pages, headings, components, and technology clues.</p></div></div><div class="feature"><span>02</span><div><h3>AI-ready manifest</h3><p>A structured map of source files and their relationships.</p></div></div><div class="feature"><span>03</span><div><h3>Lightweight source copy</h3><p>Keep source. Replace heavy media with placeholders.</p></div></div></article></div>
-<article class="panel bottom-panel"><div><span class="shield">◇</span><div><h3>Your original stays original.</h3><p>Exports go into a new folder. No uploads. No source execution.</p></div></div><div class="threshold"><label for="threshold">Binary asset limit</label><input id="threshold" type="number" min="1" max="1000" value="5"><span>MiB</span></div></article></div>
-<div id="pages" class="view" hidden><div class="section-top"><h2>Pages & layout clues</h2><span>Inferred from static HTML</span></div><div id="page-list" class="page-list"><p class="empty">Scan a website to discover its pages.</p></div></div>
-<div id="files" class="view" hidden><div class="section-top"><h2>File explorer</h2><input id="search" placeholder="Filter by path…" aria-label="Filter files"></div><div class="table-wrap"><table><thead><tr><th>PATH</th><th>TYPE</th><th>SIZE</th><th>DECISION</th></tr></thead><tbody id="file-list"></tbody></table></div><p id="file-limit" class="muted"></p></div>
-<div id="insights" class="view" hidden><article class="panel"><h2>Technology detected</h2><div id="technology" class="tags">Scan a folder to inspect its source.</div><h2 class="spaced">Scan notes</h2><ul id="warnings"></ul><h2 class="spaced">Excluded paths</h2><ul id="skipped"></ul></article></div>
-<footer><div><span class="status-dot"></span><span id="footer-status">Ready when you are</span></div><button id="export" class="primary" disabled>Export reconstruction kit ↗</button></footer></section></main><script src="renderer.js"></script></body></html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'"
+    />
+    <title>SiteAtlas — A clearer view of your website</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <svg class="svg-library" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <symbol id="i-grid" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1.5" />
+          <rect x="14" y="3" width="7" height="7" rx="1.5" />
+          <rect x="3" y="14" width="7" height="7" rx="1.5" />
+          <rect x="14" y="14" width="7" height="7" rx="1.5" />
+        </symbol>
+        <symbol id="i-map" viewBox="0 0 24 24">
+          <path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2zM9 3v16M15 5v16" />
+        </symbol>
+        <symbol id="i-folder" viewBox="0 0 24 24">
+          <path
+            d="M3 7V5a2 2 0 0 1 2-2h5l3 3h6a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 10h18"
+          />
+        </symbol>
+        <symbol id="i-code" viewBox="0 0 24 24">
+          <path d="m8 6-6 6 6 6m8-12 6 6-6 6M14 3l-4 18" />
+        </symbol>
+        <symbol id="i-chart" viewBox="0 0 24 24">
+          <path d="M4 3v17h17M9 15v-5m5 5V5m5 10v-7" />
+        </symbol>
+        <symbol id="i-arrow" viewBox="0 0 24 24">
+          <path d="M4 12h16m-6-6 6 6-6 6" />
+        </symbol>
+        <symbol id="i-download" viewBox="0 0 24 24">
+          <path d="M12 3v12m-5-5 5 5 5-5M4 15v5h16v-5" />
+        </symbol>
+        <symbol id="i-shield" viewBox="0 0 24 24">
+          <path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6z" />
+          <path d="m8 12 3 3 5-6" />
+        </symbol>
+        <symbol id="i-help" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 5m0 3h.01" />
+        </symbol>
+        <symbol id="i-check" viewBox="0 0 24 24">
+          <path d="m5 12 4 4L19 6" />
+        </symbol>
+        <symbol id="i-search" viewBox="0 0 24 24">
+          <circle cx="10.5" cy="10.5" r="6.5" />
+          <path d="m16 16 5 5" />
+        </symbol>
+        <symbol id="i-file" viewBox="0 0 24 24">
+          <path d="M14 3H5v18h14V8zM14 3v5h5M8 12h8m-8 4h6" />
+        </symbol>
+        <symbol id="i-image" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="18" height="18" rx="3" />
+          <circle cx="8" cy="8" r="1" />
+          <path d="m3 17 6-6 4 4 3-3 5 5" />
+        </symbol>
+        <symbol id="i-play" viewBox="0 0 24 24">
+          <rect x="3" y="5" width="18" height="14" rx="3" />
+          <path d="m10 9 5 3-5 3z" />
+        </symbol>
+        <symbol id="i-spark" viewBox="0 0 24 24">
+          <path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5z" />
+        </symbol>
+        <symbol id="i-clock" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 7v5l3 2" />
+        </symbol>
+      </defs>
+    </svg>
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 32 32">
+            <path d="m5 25 11-20 11 20M10 17h12M16 5v20" />
+          </svg>
+        </div>
+        <div>SiteAtlas<span>THE WEBSITE BLUEPRINT</span></div>
+      </div>
+      <div class="workspace-tag">
+        <span class="live-dot"></span> Personal workspace
+        <span class="keycap">LOCAL</span>
+      </div>
+      <div class="nav-label">EXPLORE</div>
+      <nav aria-label="Workspace">
+        <button class="nav active" data-view="overview">
+          <svg><use href="#i-grid" /></svg>Overview</button
+        ><button class="nav" data-view="pages">
+          <svg><use href="#i-map" /></svg>Pages & structure<span
+            id="nav-pages"
+            class="nav-count"
+            >—</span
+          ></button
+        ><button class="nav" data-view="files">
+          <svg><use href="#i-folder" /></svg>Files & assets<span
+            id="nav-files"
+            class="nav-count"
+            >—</span
+          ></button
+        ><button class="nav" data-view="insights">
+          <svg><use href="#i-chart" /></svg>Technology & notes
+        </button>
+      </nav>
+      <div class="sidebar-note">
+        <div class="note-art">
+          <svg><use href="#i-spark" /></svg>
+        </div>
+        <h3>Big website. Small blueprint.</h3>
+        <p>Bring the structure.<br />Leave the heavy lifting behind.</p>
+        <button id="sample" class="sample-link">
+          Explore a sample <svg class="diagonal"><use href="#i-arrow" /></svg>
+        </button>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="nav" data-view="guide">
+          <svg><use href="#i-help" /></svg>How to use SiteAtlas
+        </button>
+        <div class="privacy">
+          <svg><use href="#i-shield" /></svg>
+          <div>
+            Offline by design<span>No uploads. Your files stay yours.</span>
+          </div>
+        </div>
+        <div class="version">SITEATLAS <span>v0.2.0</span></div>
+      </div>
+    </aside>
+    <main>
+      <header>
+        <div class="breadcrumbs">
+          Workspace <span>/</span> <strong id="breadcrumb">Overview</strong>
+        </div>
+        <div class="header-right">
+          <span class="offline-pill"
+            ><span class="live-dot"></span> All systems local</span
+          ><button id="help" class="icon-button" aria-label="Open usage guide">
+            <svg><use href="#i-help" /></svg>
+          </button>
+        </div>
+      </header>
+      <div class="content">
+        <div class="page-heading">
+          <div>
+            <div class="eyebrow">
+              A LITTLE LESS WEIGHT. A LOT MORE POSSIBILITY.
+            </div>
+            <h1 id="view-title">
+              See the website.<br class="welcome-break" />
+              <span>Not the baggage.</span>
+            </h1>
+            <p id="view-description">
+              A clear map of your website’s pages, code, and content. Ready for
+              your next idea.
+            </p>
+          </div>
+          <button id="scan" class="button primary">
+            <svg><use href="#i-folder" /></svg><span>Choose website folder</span
+            ><svg class="small"><use href="#i-arrow" /></svg>
+          </button>
+        </div>
+        <div class="workflow" aria-label="Workflow">
+          <div id="step-one" class="step active">
+            <span class="step-number">01</span>
+            <div>
+              <b>Choose a folder</b><small>Your local website files</small>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+          <div id="step-two" class="step">
+            <span class="step-number">02</span>
+            <div>
+              <b>Discover the structure</b
+              ><small>Review pages, code & assets</small>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+          <div id="step-three" class="step">
+            <span class="step-number">03</span>
+            <div>
+              <b>Export your blueprint</b
+              ><small>A fresh start, without the weight</small>
+            </div>
+          </div>
+          <span class="workflow-safe"
+            ><svg><use href="#i-shield" /></svg> Originals stay untouched</span
+          >
+        </div>
+        <div
+          id="message"
+          class="notice"
+          role="status"
+          aria-live="polite"
+          hidden
+        ></div>
+        <div id="progress-panel" class="progress-panel" hidden>
+          <div class="progress-header">
+            <div>
+              <span class="spinner"></span
+              ><strong id="progress-title">Reading your website…</strong>
+            </div>
+            <button id="cancel" class="text-button">Cancel scan</button>
+          </div>
+          <p id="progress-detail">
+            Building an inventory. Large media files are measured, never loaded.
+          </p>
+          <div class="indeterminate"><span></span></div>
+        </div>
+        <div id="overview" class="view">
+          <section class="project-card">
+            <div class="project-icon">
+              <svg><use href="#i-folder" /></svg>
+            </div>
+            <div class="project-info">
+              <div class="project-title">
+                <h2 id="project-name">Your next project starts here</h2>
+                <span id="project-state" class="badge neutral"
+                  >NO FOLDER SELECTED</span
+                >
+              </div>
+              <p id="project-meta">
+                Select a website folder, or explore the sample to see what
+                you’ll get.
+              </p>
+            </div>
+            <div class="project-right">
+              <span class="tiny-label">SCAN PROFILE</span
+              ><strong
+                >Source first <svg><use href="#i-shield" /></svg
+              ></strong>
+            </div>
+          </section>
+          <div class="metrics">
+            <article>
+              <div class="metric-label">
+                Original website<svg><use href="#i-folder" /></svg>
+              </div>
+              <strong id="total">—<span>GB</span></strong
+              ><small id="file-count">Waiting for a folder</small>
+            </article>
+            <article>
+              <div class="metric-label">
+                Lightweight source<svg><use href="#i-code" /></svg>
+              </div>
+              <strong id="retained">—<span>MB</span></strong
+              ><small>Estimated retained files</small>
+            </article>
+            <article class="savings-card">
+              <div class="metric-label">
+                Potential reduction<svg><use href="#i-spark" /></svg>
+              </div>
+              <strong id="reduction">—<span>%</span></strong
+              ><small id="omitted">Less media. More meaning.</small>
+            </article>
+            <article>
+              <div class="metric-label">
+                Pages discovered<svg><use href="#i-map" /></svg>
+              </div>
+              <strong id="pages-count">—</strong
+              ><small>Static HTML entry points</small>
+            </article>
+          </div>
+          <div class="dashboard-grid">
+            <section class="card composition-card">
+              <div class="card-heading">
+                <div>
+                  <h2>A lighter way forward</h2>
+                  <p>Understand what’s taking up space.</p>
+                </div>
+                <span class="subtle-label">BY FILE SIZE</span>
+              </div>
+              <div class="composition-body">
+                <div id="donut" class="donut empty-donut">
+                  <div class="donut-center">
+                    <span id="donut-value">—</span
+                    ><small id="donut-label">total footprint</small>
+                  </div>
+                </div>
+                <div id="legend" class="legend"></div>
+              </div>
+              <div class="composition-note">
+                <svg><use href="#i-check" /></svg
+                ><span
+                  >Source stays. Heavy media goes. You keep the creative
+                  control.</span
+                >
+              </div>
+            </section>
+            <section class="card kit-card">
+              <div class="card-heading">
+                <div>
+                  <span class="overline">YOUR RECONSTRUCTION KIT</span>
+                  <h2>Everything you need. Nothing you don’t.</h2>
+                </div>
+                <svg class="kit-spark"><use href="#i-spark" /></svg>
+              </div>
+              <div class="kit-item">
+                <div class="kit-icon blue">
+                  <svg><use href="#i-file" /></svg>
+                </div>
+                <div>
+                  <h3>A report you can read</h3>
+                  <p>Pages, layout clues, technology, and asset decisions.</p>
+                </div>
+                <code>.html</code>
+              </div>
+              <div class="kit-item">
+                <div class="kit-icon teal">
+                  <svg><use href="#i-code" /></svg>
+                </div>
+                <div>
+                  <h3>A manifest your AI can use</h3>
+                  <p>Content, elements, and the connections between files.</p>
+                </div>
+                <code>.json</code>
+              </div>
+              <div class="kit-item">
+                <div class="kit-icon peach">
+                  <svg><use href="#i-folder" /></svg>
+                </div>
+                <div>
+                  <h3>A lightweight source folder</h3>
+                  <p>Original code, with placeholders for heavy media.</p>
+                </div>
+                <code>/files</code>
+              </div>
+              <div class="kit-bottom">
+                <span class="live-dot"></span> Ready for a fresh build, with
+                your own elements.
+              </div>
+            </section>
+          </div>
+          <section class="scan-settings">
+            <div class="settings-intro">
+              <svg><use href="#i-shield" /></svg>
+              <div>
+                <h3>A thoughtful scan. A safe original.</h3>
+                <p>
+                  We read your files, skip common secrets, and export to a
+                  separate folder.
+                </p>
+              </div>
+            </div>
+            <div class="threshold-control">
+              <label for="threshold"
+                >Large binary cutoff
+                <span
+                  title="Video and audio are always omitted. Other binary files above this limit are omitted. Source is retained regardless of size."
+                  >?</span
+                ></label
+              >
+              <div>
+                <input
+                  id="threshold"
+                  type="number"
+                  min="1"
+                  max="1000"
+                  value="5"
+                  aria-describedby="threshold-note"
+                /><span>MiB</span>
+              </div>
+            </div>
+          </section>
+          <p id="threshold-note" class="footnote">
+            Video and audio are always omitted. The cutoff applies to other
+            binary assets. Change it before scanning.
+          </p>
+          <div id="recent-pages" class="card recent-pages" hidden>
+            <div class="card-heading">
+              <div>
+                <h2>A first look at your pages</h2>
+                <p>Follow the structure into your next build.</p>
+              </div>
+              <button id="all-pages" class="text-button">
+                Explore all pages
+                <svg class="diagonal"><use href="#i-arrow" /></svg>
+              </button>
+            </div>
+            <div id="page-preview"></div>
+          </div>
+        </div>
+        <div id="pages" class="view" hidden>
+          <div class="section-toolbar">
+            <div>
+              <h2>From pages to building blocks</h2>
+              <p>
+                Expand a page to explore its headings and nested HTML structure.
+              </p>
+            </div>
+            <span class="badge neutral">SOURCE-BASED ANALYSIS</span>
+          </div>
+          <div id="page-list" class="page-list"></div>
+        </div>
+        <div id="files" class="view" hidden>
+          <div class="section-toolbar">
+            <div>
+              <h2>Every file, with a purpose</h2>
+              <p>
+                Search the inventory. Select a file to inspect its
+                relationships.
+              </p>
+            </div>
+            <div class="file-tools">
+              <label class="search-box"
+                ><svg><use href="#i-search" /></svg
+                ><input
+                  id="search"
+                  placeholder="Find a file…"
+                  aria-label="Search file paths" /></label
+              ><select
+                id="decision-filter"
+                aria-label="Filter by export decision"
+              >
+                <option value="all">All files</option>
+                <option value="keep">Keep in export</option>
+                <option value="omit">Omit from export</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>FILE / PATH</th>
+                  <th>TYPE</th>
+                  <th>SIZE</th>
+                  <th>EXPORT DECISION</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="file-list"></tbody>
+            </table>
+            <div id="files-empty" class="empty-state" hidden></div>
+          </div>
+          <p id="file-limit" class="footnote"></p>
+        </div>
+        <div id="insights" class="view" hidden>
+          <div class="insights-grid">
+            <section class="card">
+              <div class="card-heading">
+                <div>
+                  <h2>Built with</h2>
+                  <p>Framework clues from package manifests.</p>
+                </div>
+                <svg><use href="#i-code" /></svg>
+              </div>
+              <div id="frameworks" class="tags"></div>
+              <h3 class="section-label">FILE TYPES</h3>
+              <div id="technology" class="language-list"></div>
+            </section>
+            <section class="card">
+              <h2>Before you rebuild</h2>
+              <p class="card-description">
+                A few things the source alone can’t tell us.
+              </p>
+              <ul id="warnings" class="note-list"></ul>
+              <h3 class="section-label">EXCLUDED FROM THE SCAN</h3>
+              <ul id="skipped" class="note-list"></ul>
+            </section>
+          </div>
+        </div>
+        <div id="guide" class="view" hidden>
+          <section class="guide-hero">
+            <span class="overline">FROM FOLDER TO FRESH START</span>
+            <h2>Your website’s next chapter<br />starts with a clearer map.</h2>
+            <p>
+              Three simple steps. No uploads, no accounts, and no changes to
+              your original files.
+            </p>
+          </section>
+          <div class="guide-steps">
+            <article class="card">
+              <span class="guide-number">01</span>
+              <h2>Choose your website</h2>
+              <p>
+                Click <b>Choose website folder</b> and select the extracted root
+                folder containing your HTML, CSS, scripts, and assets. ZIP files
+                need to be extracted first.
+              </p>
+              <div class="guide-tip">
+                Set the binary cutoff first. 5 MiB is a good starting point.
+              </div>
+            </article>
+            <article class="card">
+              <span class="guide-number">02</span>
+              <h2>Find what matters</h2>
+              <p>
+                Review the space breakdown, explore <b>Pages & structure</b>,
+                and inspect <b>Files & assets</b>. “Keep” means copied. “Omit”
+                means inventoried but left out.
+              </p>
+              <div class="guide-tip">
+                Layouts are inferred from HTML, not screenshots or runtime
+                behavior.
+              </div>
+            </article>
+            <article class="card">
+              <span class="guide-number">03</span>
+              <h2>Export & make it yours</h2>
+              <p>
+                Click <b>Export blueprint</b> and choose a folder outside the
+                website. A new, uniquely named folder contains the report,
+                manifest, source, and rebuilding brief.
+              </p>
+              <div class="guide-tip">
+                Give your AI the manifest and brief. Add your own media and
+                branding.
+              </div>
+            </article>
+          </div>
+          <section class="card guide-files">
+            <h2>Meet your export</h2>
+            <div>
+              <code>report.html</code>
+              <p>
+                Open in a browser for a readable overview of the structure and
+                decisions.
+              </p>
+            </div>
+            <div>
+              <code>manifest.json</code>
+              <p>
+                Use with an AI to understand content, components, dependencies,
+                and file references.
+              </p>
+            </div>
+            <div>
+              <code>lightweight/</code>
+              <p>
+                Source and smaller assets. Media is replaced where supported;
+                CSS and JavaScript references may need editing.
+              </p>
+            </div>
+            <div>
+              <code>REBUILD.md</code>
+              <p>
+                A handoff brief with reconstruction guidance and known
+                limitations.
+              </p>
+            </div>
+          </section>
+          <section class="guide-caution">
+            <svg><use href="#i-shield" /></svg>
+            <p>
+              <b>A blueprint, not a pixel-perfect clone.</b> SiteAtlas doesn’t
+              execute scripts, compile the website, or discover every dynamic
+              route. Review source for embedded secrets before sharing it. Media
+              placeholders may change the layout.
+            </p>
+          </section>
+        </div>
+        <footer>
+          <div class="footer-status">
+            <span class="live-dot"></span
+            ><span id="footer-status">Your files stay on this device.</span>
+          </div>
+          <div class="export-actions">
+            <button id="open-export" class="button secondary" hidden>
+              <svg><use href="#i-folder" /></svg>Open export folder</button
+            ><button id="export" class="button primary" disabled>
+              <svg><use href="#i-download" /></svg>Export blueprint<svg
+                class="small"
+              >
+                <use href="#i-arrow" />
+              </svg>
+            </button>
+          </div>
+        </footer>
+      </div>
+    </main>
+    <dialog id="file-dialog">
+      <div class="dialog-top">
+        <span class="overline">FILE DETAILS</span
+        ><button
+          id="close-dialog"
+          class="icon-button"
+          aria-label="Close file details"
+        >
+          ×
+        </button>
+      </div>
+      <h2 id="detail-name"></h2>
+      <div id="detail-meta"></div>
+      <h3>References found in this file</h3>
+      <div id="detail-references"></div>
+    </dialog>
+    <script src="renderer.js"></script>
+  </body>
+</html>

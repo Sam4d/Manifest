@@ -1,14 +1,18 @@
-name: Build desktop downloads
-on: workflow_dispatch
+name: Windows executable
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "package*.json"
+      - "build/**"
+      - ".github/workflows/desktop-build.yml"
+permissions:
+  contents: read
 jobs:
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    permissions:
-      contents: read
+  windows:
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -17,14 +21,15 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
-      - run: npm run dist -- --publish never
+      - name: Check Windows desktop interactions
+        run: npm run test:desktop
+      - name: Build installer and portable executable
+        run: npm run dist:win
         env:
-          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
       - uses: actions/upload-artifact@v4
         with:
-          name: SiteSieve-${{ matrix.os }}
-          path: |
-            dist/*.AppImage
-            dist/*.dmg
-            dist/*.exe
+          name: SiteAtlas-Windows-x64
+          path: dist/*.exe
           if-no-files-found: error
+          retention-days: 30

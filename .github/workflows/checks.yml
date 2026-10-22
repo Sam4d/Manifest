@@ -1,5 +1,7 @@
 name: Checks
 on: [push, pull_request]
+permissions:
+  contents: read
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -11,4 +13,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
-      - run: xvfb-run -a npm run test:desktop
+      - name: Install virtual display prerequisites
+        run: sudo apt-get update && sudo apt-get install -y xvfb xauth
+      # Ubuntu hosted runners restrict Chromium user namespaces. Only this isolated
+      # CI smoke process disables Chromium's sandbox; the shipped app keeps it.
+      - name: Check the real desktop interface
+        run: xvfb-run -a npm run test:desktop:ci
