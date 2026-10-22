@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.1 — Scan stability
+
+- Replaced reference matching that could stall on large JavaScript files.
+- Isolated source parsing in a worker with a three-second per-file budget; timed-out files remain inventoried with a warning.
+- Reduced sample fixtures to under 1 MiB instead of creating roughly 52 MiB of media stubs.
+- Added current-file and phase progress, including sample preparation, and responsive parser cancellation.
+- Continue past unreadable nested directories and preserve inventory byte accounting when source analysis fails.
+- Added regression cases for export-heavy source, worker timeout/restart, live cancellation, and reference extraction.
+- Gate Windows publication on launching and scanning with both the packaged app and the portable executable, beyond source-level tests.
+
 ## 0.4.0
 
 - Added multi-site public website capture with static and isolated browser-rendered modes.

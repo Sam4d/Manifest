@@ -489,3 +489,7 @@ tbody tr:hover {
     transition: none !important;
   }
 }
+#progress-detail {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}

@@ -1,6 +1,7 @@
 const fs = require("node:fs/promises");
 const path = require("node:path");
 const crypto = require("node:crypto");
+const { FileParser } = require("./parse-worker-client.cjs");
 const TEXT = new Set([
   ".html",
   ".htm",
@@ -64,106 +65,6 @@ const escape = (s) =>
         c
       ],
   );
-function references(text, ext) {
-  const out = [];
-  const patterns =
-    ext === ".css" || ext === ".scss"
-      ? [/url\(\s*['"]?([^)'"\s]+)['"]?\s*\)/gi, /@import\s+['"]([^'"]+)/gi]
-      : [
-          /(?:src|href|poster|action)\s*=\s*['"]([^'"]+)['"]/gi,
-          /(?:import|export)\s+(?:[^'";]*?from\s*)?['"]([^'"]+)['"]/g,
-          /import\(\s*['"]([^'"]+)['"]\s*\)/g,
-          /require\(\s*['"]([^'"]+)['"]\s*\)/g,
-        ];
-  for (const re of patterns) for (const m of text.matchAll(re)) out.push(m[1]);
-  return [...new Set(out)].slice(0, 2000);
-}
-async function htmlStructure(source) {
-  const { parse } = await import("parse5");
-  const document = parse(source);
-  let count = 0;
-  const titles = [],
-    headings = [],
-    elements = {},
-    content = [],
-    metadata = [];
-  function plain(node) {
-    const stack = [node],
-      parts = [];
-    let length = 0;
-    while (stack.length && length < 30000) {
-      const current = stack.pop();
-      if (current.nodeName === "#text") {
-        parts.push(current.value);
-        length += current.value.length;
-      } else
-        for (let i = (current.childNodes || []).length - 1; i >= 0; i--)
-          stack.push(current.childNodes[i]);
-    }
-    return parts.join(" ").slice(0, 30000);
-  }
-  function visit(node, depth = 0) {
-    if (count >= 2000 || depth > 80) return null;
-    if (!node.tagName) {
-      const children = (node.childNodes || [])
-        .map((child) => visit(child, depth + 1))
-        .filter(Boolean);
-      return children;
-    }
-    const tag = node.tagName,
-      attrs = Object.fromEntries(
-        (node.attrs || []).map((a) => [a.name, a.value]),
-      );
-    if (tag === "title") titles.push(plain(node).trim());
-    if (tag === "meta")
-      metadata.push({
-        name: attrs.name || attrs.property || attrs["http-equiv"] || "",
-        content: attrs.content || "",
-      });
-    if (/^(script|style|head|template)$/.test(tag)) {
-      if (tag === "head")
-        for (const child of node.childNodes || []) visit(child, depth + 1);
-      return null;
-    }
-    if (/^h[1-6]$/.test(tag))
-      headings.push({
-        level: Number(tag[1]),
-        text: plain(node).replace(/\s+/g, " ").trim(),
-      });
-    if (
-      /^(header|nav|main|section|article|aside|footer|form|video|img|button|input)$/.test(
-        tag,
-      )
-    )
-      elements[tag] = (elements[tag] || 0) + 1;
-    if (/^(p|h[1-6]|li|label|button)$/.test(tag))
-      content.push(plain(node).replace(/\s+/g, " ").trim());
-    count++;
-    const children = (node.childNodes || [])
-      .map((child) => visit(child, depth + 1))
-      .flat()
-      .filter(Boolean);
-    return {
-      tag,
-      ...(attrs.id ? { id: attrs.id } : {}),
-      ...(attrs.class
-        ? { classes: attrs.class.split(/\s+/).slice(0, 20) }
-        : {}),
-      ...(attrs.role ? { role: attrs.role } : {}),
-      children,
-    };
-  }
-  const layout = visit(document).flat();
-  return {
-    title: titles[0] || "",
-    headings: headings.slice(0, 200),
-    elements,
-    content: content.join("\n").slice(0, 30000),
-    metadata: metadata.slice(0, 100),
-    layout,
-    layoutTruncated: count >= 2000,
-  };
-}
 function layoutOutline(nodes, depth = 0) {
   return nodes
     .map(
@@ -196,7 +97,42 @@ async function scan(root, options = {}, progress = () => {}) {
     retainedBytes: 0,
     root,
   };
+  const parser = new FileParser({
+    signal: options.signal,
+    timeoutMs: options.parseTimeoutMs ?? 3000,
+  });
+  let lastProgress = 0,
+    latestProgress;
+  const heartbeat = setInterval(() => {
+    if (latestProgress)
+      progress({
+        ...latestProgress,
+        files: result.files.length,
+        bytes: result.totalBytes,
+      });
+  }, 250);
+  heartbeat.unref();
+  function reportProgress(phase, currentPath, force = false) {
+    latestProgress = {
+      files: result.files.length,
+      bytes: result.totalBytes,
+      phase,
+      currentPath,
+    };
+    const now = Date.now();
+    if (force || now - lastProgress >= 150) {
+      lastProgress = now;
+      progress({
+        files: result.files.length,
+        bytes: result.totalBytes,
+        phase,
+        currentPath,
+      });
+    }
+  }
   async function walk(dir) {
+    options.signal?.throwIfAborted();
+    reportProgress("reading-directory", path.relative(root, dir) || ".");
     for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
       options.signal?.throwIfAborted();
       const abs = path.join(dir, entry.name),
@@ -218,7 +154,13 @@ async function scan(root, options = {}, progress = () => {}) {
             path: rel,
             reason: "Dependency, cache, or version control directory",
           });
-        else await walk(abs);
+        else
+          try {
+            await walk(abs);
+          } catch (error) {
+            if (options.signal?.aborted) throw error;
+            result.warnings.push(`Directory skipped ${rel}: ${error.message}`);
+          }
         continue;
       }
       if (!entry.isFile()) continue;
@@ -243,83 +185,106 @@ async function scan(root, options = {}, progress = () => {}) {
         if (!heavy) result.retainedBytes += st.size;
         result.languages[file.extension] =
           (result.languages[file.extension] || 0) + 1;
+        reportProgress("inventory", rel);
         if (TEXT.has(ext) && st.size <= 2 * 1024 * 1024) {
-          const buffer = await fs.readFile(abs);
-          const text = buffer.toString("utf8");
-          file.references = references(text, ext);
-          if ([".html", ".htm"].includes(ext)) {
-            const structure = await htmlStructure(text);
-            result.pages.push({
-              path: rel,
-              ...structure,
-              title: structure.title || rel,
-            });
+          try {
+            reportProgress("parsing-source", rel);
+            const buffer = await fs.readFile(abs, { signal: options.signal });
+            file.sha256 = crypto
+              .createHash("sha256")
+              .update(buffer)
+              .digest("hex");
+            const text = buffer.toString("utf8");
+            const parsed = await parser.parse(text, ext);
+            file.references = parsed.references;
+            if (parsed.structure)
+              result.pages.push({
+                path: rel,
+                ...parsed.structure,
+                title: parsed.structure.title || rel,
+              });
+            if (path.basename(rel) === "package.json")
+              try {
+                const manifest = JSON.parse(text);
+                file.dependencies = {
+                  ...manifest.dependencies,
+                  ...manifest.devDependencies,
+                };
+              } catch {
+                result.warnings.push(`Invalid JSON: ${rel}`);
+              }
+          } catch (error) {
+            if (options.signal?.aborted) throw error;
+            result.warnings.push(
+              `Source analysis skipped ${rel}: ${error.message}. File remains in the inventory and lightweight selection.`,
+            );
           }
-          if (path.basename(rel) === "package.json")
-            try {
-              const p = JSON.parse(text);
-              file.dependencies = { ...p.dependencies, ...p.devDependencies };
-            } catch {
-              result.warnings.push(`Invalid JSON: ${rel}`);
-            }
-          file.sha256 = crypto
-            .createHash("sha256")
-            .update(buffer)
-            .digest("hex");
         } else if (TEXT.has(ext))
           result.warnings.push(`Source parsing skipped above 2 MiB: ${rel}`);
         result.files.push(file);
-        if (result.files.length % 100 === 0)
-          progress({ files: result.files.length, bytes: result.totalBytes });
+        reportProgress("inventory", rel);
       } catch (e) {
         if (options.signal?.aborted) throw e;
         result.warnings.push(`${rel}: ${e.message}`);
       }
     }
   }
-  await walk(root);
-  const deps = new Set(
-    result.files.flatMap((f) => Object.keys(f.dependencies || {})),
-  );
-  result.frameworks = [
-    "react",
-    "next",
-    "vue",
-    "nuxt",
-    "svelte",
-    "@angular/core",
-    "astro",
-    "vite",
-    "tailwindcss",
-    "bootstrap",
-  ].filter((x) => deps.has(x));
-  const paths = new Set(result.files.map((f) => f.path));
-  for (const f of result.files)
-    f.references = f.references.map((target) => {
-      if (/^(?:[a-z][a-z\d+.-]*:|\/\/|#)/i.test(target))
-        return { target, kind: "external-or-anchor" };
-      let clean;
-      try {
-        clean = decodeURIComponent(target.split(/[?#]/)[0]);
-      } catch {
-        clean = target.split(/[?#]/)[0];
+  try {
+    reportProgress("reading-directory", ".", true);
+    await walk(root);
+    reportProgress("resolving-references", ".", true);
+    const deps = new Set(
+      result.files.flatMap((f) => Object.keys(f.dependencies || {})),
+    );
+    result.frameworks = [
+      "react",
+      "next",
+      "vue",
+      "nuxt",
+      "svelte",
+      "@angular/core",
+      "astro",
+      "vite",
+      "tailwindcss",
+      "bootstrap",
+    ].filter((x) => deps.has(x));
+    const paths = new Set(result.files.map((f) => f.path));
+    for (const [index, f] of result.files.entries()) {
+      if (index % 100 === 0) {
+        options.signal?.throwIfAborted();
+        await new Promise((resolve) => setImmediate(resolve));
+        reportProgress("resolving-references", f.path);
       }
-      const resolved = path.posix.normalize(
-        clean.startsWith("/")
-          ? clean.slice(1)
-          : path.posix.join(path.posix.dirname(f.path), clean),
-      );
-      return {
-        target,
-        resolved,
-        kind: paths.has(resolved) ? "local" : "unresolved",
-      };
-    });
-  result.warnings.push(
-    "Layout is inferred from source, not a browser rendering. Dynamic routes, runtime requests, srcset, and bundled imports may need manual review.",
-  );
-  progress({ files: result.files.length, bytes: result.totalBytes });
-  return result;
+      f.references = f.references.map((target) => {
+        if (/^(?:[a-z][a-z\d+.-]*:|\/\/|#)/i.test(target))
+          return { target, kind: "external-or-anchor" };
+        let clean;
+        try {
+          clean = decodeURIComponent(target.split(/[?#]/)[0]);
+        } catch {
+          clean = target.split(/[?#]/)[0];
+        }
+        const resolved = path.posix.normalize(
+          clean.startsWith("/")
+            ? clean.slice(1)
+            : path.posix.join(path.posix.dirname(f.path), clean),
+        );
+        return {
+          target,
+          resolved,
+          kind: paths.has(resolved) ? "local" : "unresolved",
+        };
+      });
+    }
+    result.warnings.push(
+      "Layout is inferred from source, not a browser rendering. Dynamic routes, runtime requests, srcset, and bundled imports may need manual review.",
+    );
+    progress({ files: result.files.length, bytes: result.totalBytes });
+    return result;
+  } finally {
+    clearInterval(heartbeat);
+    await parser.close();
+  }
 }
 function publicManifest(scan) {
   const { root, ...data } = scan;

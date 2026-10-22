@@ -2,7 +2,6 @@
 
 **New in 0.4:** [Capture websites directly](CAPTURE.md), including multiple URLs, browser-rendered pages, saved project resume and full original downloads. After capture, select a site to analyze using the workflow below.
 
-
 PageTrace turns a local website folder into a readable report, an AI-ready manifest, and a smaller source copy. Everything happens on your computer. The original folder stays untouched.
 
 ## Appearance and keyboard controls
@@ -96,8 +95,8 @@ Click **How to use PageTrace** in the sidebar or the question-mark button at the
 
 ## Windows installation
 
-- **Installer:** run `PageTrace-0.3.0-x64-Setup.exe`, choose an install location, and launch from the Start menu or desktop shortcut.
-- **Portable:** run `PageTrace-0.3.0-x64-portable.exe`. No Node.js or separate Electron installation is needed. It extracts its runtime to a temporary directory while running.
+- **Installer:** run `PageTrace-0.4.1-x64-Setup.exe`, choose an install location, and launch from the Start menu or desktop shortcut.
+- **Portable:** run `PageTrace-0.4.1-x64-portable.exe`. No Node.js or separate Electron installation is needed. It extracts its runtime to a temporary directory while running.
 - Windows 10/11 **64-bit** is the target. ARM and 32-bit Windows are not included.
 - Builds are unsigned. Windows may show an unknown-publisher or SmartScreen prompt. Verify where you downloaded the executable and its checksum. A signing certificate is not included.
 
@@ -137,3 +136,9 @@ Select the arrow beside a file to see its reason and references. Press Escape or
 Earlier builds were named SiteAtlas/SiteSieve. PageTrace uses its own application identity and stored appearance setting. Your original website folders and previous exports are unaffected. You can uninstall the older app separately; exports remain ordinary folders you control.
 
 For technical details, read the [architecture guide](ARCHITECTURE.md) and [manifest reference](MANIFEST.md).
+
+## Scan progress and stalled-file recovery (0.4.1+)
+
+The progress panel shows the active phase and current relative file path. Source analysis runs outside the window’s event loop. If analysis of an individual source file exceeds three seconds, it is skipped with a warning while the inventory and lightweight selection retain that file. Parser cancellation interrupts stuck source analysis.
+
+Check **Technology & notes** for `Source analysis skipped` entries. A timed-out HTML file will not have a parsed page outline. Unreadable nested folders are reported rather than aborting the whole scan. The budget does not bound operating-system filesystem calls; cloud placeholders or disconnected drives may still take time to respond. Use an extracted, locally available folder for the most reliable scan.

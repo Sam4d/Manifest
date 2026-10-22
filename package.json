@@ -1,6 +1,6 @@
 {
   "name": "pagetrace",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Website capture, structure analysis and AI-ready source export for Windows",
   "main": "src/main.cjs",
   "private": true,
@@ -14,7 +14,8 @@
     "test:desktop:ci": "electron --no-sandbox --disable-gpu scripts/desktop-smoke.cjs",
     "dist:win": "electron-builder --win nsis portable --x64 --publish never",
     "test:capture:desktop": "electron scripts/capture-smoke.cjs",
-    "test:capture:desktop:ci": "electron --no-sandbox --disable-gpu scripts/capture-smoke.cjs"
+    "test:capture:desktop:ci": "electron --no-sandbox --disable-gpu scripts/capture-smoke.cjs",
+    "test:packaged": "node scripts/packaged-smoke.cjs"
   },
   "devDependencies": {
     "electron": "^45.0.0",

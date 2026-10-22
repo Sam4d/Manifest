@@ -26,21 +26,25 @@ flowchart LR
     F --> J[Rebuilding brief]
 ```
 
-| Component                   | Responsibility                                                                                          |
-| --------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `src/main.cjs`              | Owns the window, native dialogs, current scan, cancellation, sample lifetime, and last-export location. |
-| `src/preload.cjs`           | Exposes only `scan`, `sample`, `cancel`, `export`, `openExport`, and progress subscription.             |
-| `src/scanner.cjs`           | Inventories files, parses small source files, classifies references, and writes independent exports.    |
-| `src/renderer.js`           | Renders safe text, navigation, search, filtering, sorting, file inspection, and outline controls.       |
-| `src/theme.js`              | Applies Light/Dark/Auto before styles load and persists the selected mode.                              |
-| `src/style.css`             | Shared layout, responsive sizing, typography, and controls.                                             |
-| `src/appearance.css`        | White/emerald and dark-green design tokens and surface overrides.                                       |
-| `src/sample.cjs`            | Creates a temporary example site with sparse, non-playable media fixtures.                              |
-| `scripts/desktop-smoke.cjs` | Drives the real desktop interface and captures documentation screenshots.                               |
+| Component                                          | Responsibility                                                                                          |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `src/main.cjs`                                     | Owns the window, native dialogs, current scan, cancellation, sample lifetime, and last-export location. |
+| `src/preload.cjs`                                  | Exposes only `scan`, `sample`, `cancel`, `export`, `openExport`, and progress subscription.             |
+| `src/parse-worker-client.cjs` / `parse-worker.cjs` | Isolates parsing, enforces per-file deadlines, and terminates stuck parsing on cancellation.            |
+| `src/source-parser.cjs`                            | Extracts bounded static references and parse5 HTML structure.                                           |
+| `src/scanner.cjs`                                  | Inventories files, parses small source files, classifies references, and writes independent exports.    |
+| `src/renderer.js`                                  | Renders safe text, navigation, search, filtering, sorting, file inspection, and outline controls.       |
+| `src/theme.js`                                     | Applies Light/Dark/Auto before styles load and persists the selected mode.                              |
+| `src/style.css`                                    | Shared layout, responsive sizing, typography, and controls.                                             |
+| `src/appearance.css`                               | White/emerald and dark-green design tokens and surface overrides.                                       |
+| `src/sample.cjs`                                   | Creates a temporary example site with sparse, non-playable media fixtures.                              |
+| `scripts/desktop-smoke.cjs`                        | Drives the real desktop interface and captures documentation screenshots.                               |
 
 ## Data flow and performance
 
 The scanner walks directory entries asynchronously. It records media sizes using filesystem metadata rather than decoding or loading media. Recognized text source files up to **2 MiB** are read and parsed; larger source files are retained without parsing. The resulting inventory is held in memory, so a source tree with very large numbers of files can still consume substantial memory even if its media is never loaded.
+
+Source analysis runs in a dedicated worker. Each file has a three-second analysis budget, including worker startup; on timeout the worker is terminated and recreated for the next file. Files still appear in the inventory and lightweight selection, with an explicit warning when their source analysis was skipped. A progress heartbeat reports the current phase and relative file path while parsing. This budget applies to source analysis, not to operating-system filesystem calls.
 
 HTML is parsed using parse5. Page records contain titles, headings, content excerpts, metadata, semantic-element counts, and a nested outline. The outline is bounded to avoid unbounded UI rendering. Supported static references are resolved against an inventory of known paths. During scanning, external URLs are classified without fetching; capture is a separate explicit operation.
 
@@ -109,3 +113,5 @@ Do not commit executables or dependency/build caches into the source tree. Incre
 ## Scope boundaries
 
 PageTrace is a source-analysis and reconstruction tool. Site compilation, arbitrary custom per-file export selections, archive extraction, media transcoding, complete HTTrack-option parity, and pixel-perfect cloning are outside this version’s workflow. Public website capture and bounded browser rendering are available in 0.4. Improvements should preserve the default offline behavior and the original input folder.
+
+The release workflow also launches the actual `dist/win-unpacked/PageTrace.exe` and the portable self-extracting executable. An external CDP driver checks their own packaged preload, native sample creation, ASAR dependencies, successful three-page scan, search, and dark mode before publication. CDP is enabled only by the test launch arguments, never by normal launches.

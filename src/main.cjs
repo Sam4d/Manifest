@@ -100,10 +100,12 @@ ipcMain.handle("sample", async (event, threshold) => {
   validateThreshold(threshold);
   busy = true;
   try {
-    const sample = await createSample();
+    controller = new AbortController();
+    const sample = await createSample(progress, controller.signal);
     samples.push(sample.root);
     return await performScan(threshold, sample.site);
   } finally {
+    controller = null;
     busy = false;
   }
 });

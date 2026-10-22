@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - "src/**"
+      - "scripts/**"
+      - "test/**"
       - "package*.json"
       - "build/**"
       - ".github/workflows/desktop-build.yml"
@@ -31,6 +33,14 @@ jobs:
         run: npm run dist:win
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      - name: Launch and scan using the actual Windows app
+        run: node scripts/packaged-smoke.cjs dist/win-unpacked/PageTrace.exe
+      - name: Launch and scan using the actual portable download
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          node scripts/packaged-smoke.cjs "dist/PageTrace-$version-x64-portable.exe"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@v4
         with:
           name: PageTrace-Windows-x64
@@ -51,7 +61,7 @@ jobs:
           $lines | Set-Content dist/SHA256SUMS.txt
           gh release view $tag --json tagName *> $null
           if ($LASTEXITCODE -ne 0) {
-            gh release create $tag --target $env:GITHUB_SHA --title "PageTrace $version" --notes "PageTrace website capture and AI reconstruction toolkit. Multi-site projects, static and sandboxed browser capture, resumable jobs, crawl limits, local HTML/CSS rewriting, full originals and lightweight AI export. Download PageTrace-Windows-x64.exe to run without installing. Windows x64; unsigned build."
+            gh release create $tag --target $env:GITHUB_SHA --title "PageTrace $version" --notes "Scan stability update: bounded reference parsing, isolated parser worker, per-file timeouts, current-file progress, and actual packaged Windows launch/scan tests. Download PageTrace-Windows-x64.exe to run without installing. Windows x64; unsigned build."
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
           gh release upload $tag @files dist/SHA256SUMS.txt --clobber

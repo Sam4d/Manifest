@@ -155,3 +155,98 @@ test("cancelled scans stop without touching the source", async (t) => {
     "<h1>Keep me</h1>",
   );
 });
+test(
+  "large valid export-heavy JavaScript finishes instead of quadratic reference matching",
+  { timeout: 10000 },
+  async (t) => {
+    const { site } = await fixture(t);
+    await fs.writeFile(
+      path.join(site, "bundle.js"),
+      Array.from(
+        { length: 60000 },
+        (_, i) => `export const item${i} = ${i}\n`,
+      ).join(""),
+    );
+    await fs.writeFile(
+      path.join(site, "index.html"),
+      "<title>Still parsed</title><main><h1>Complete</h1></main>",
+    );
+    const phases = [];
+    let ticks = 0;
+    const clock = setInterval(() => ticks++, 5);
+    t.after(() => clearInterval(clock));
+    const result = await scan(site, {}, (p) => phases.push(p));
+    assert.equal(result.files.length, 2);
+    assert.equal(result.pages.length, 1);
+    assert.equal(
+      result.files.find((f) => f.path === "bundle.js").references.length,
+      0,
+    );
+    assert(phases.some((p) => p.currentPath));
+    assert(ticks > 0, "Parsing must leave the host event loop responsive");
+  },
+);
+test("parser timeouts retain files and preserve byte accounting", async (t) => {
+  const { site } = await fixture(t);
+  const content = "<h1>Retained despite parser timeout</h1>";
+  await fs.writeFile(path.join(site, "index.html"), content);
+  const result = await scan(site, { parseTimeoutMs: 1 });
+  assert.equal(result.files.length, 1);
+  assert.equal(result.files[0].decision, "keep");
+  assert.equal(result.totalBytes, Buffer.byteLength(content));
+  assert.equal(result.retainedBytes, result.totalBytes);
+  assert(result.warnings.some((w) => w.includes("exceeded")));
+});
+test("worker timeouts restart the parser and cancellation interrupts stuck parsing", async (t) => {
+  const { root } = await fixture(t);
+  const workerPath = path.join(root, "worker.cjs");
+  await fs.writeFile(
+    workerPath,
+    `const {parentPort}=require('node:worker_threads');parentPort.on('message',m=>{if(m.text==='stall'){while(true){}}else parentPort.postMessage({id:m.id,parsed:{references:[]}});});`,
+  );
+  const { FileParser } = require("../src/parse-worker-client.cjs");
+  const parser = new FileParser({ workerPath, timeoutMs: 200 });
+  t.after(() => parser.close());
+  await assert.rejects(parser.parse("stall", ".js"), { code: "PARSE_TIMEOUT" });
+  assert.deepEqual(await parser.parse("ready", ".js"), { references: [] });
+  const controller = new AbortController();
+  const cancelled = new FileParser({
+    workerPath,
+    signal: controller.signal,
+    timeoutMs: 5000,
+  });
+  t.after(() => cancelled.close());
+  const running = cancelled.parse("stall", ".js");
+  controller.abort();
+  await assert.rejects(running, { name: "AbortError" });
+});
+test("static references cover imports, re-exports, dynamic imports, attributes, and CSS", async (t) => {
+  const { site } = await fixture(t);
+  await fs.writeFile(
+    path.join(site, "entry.js"),
+    `import Thing from './default.js';import {x} from './named.js';export {y} from './shared.js';import './side.css';import('./lazy.js');require('./legacy.cjs');export const n=1;`,
+  );
+  await fs.writeFile(
+    path.join(site, "style.css"),
+    `@import './base.css'; .hero{background:url('./cover.png')}`,
+  );
+  const result = await scan(site);
+  assert.deepEqual(
+    result.files
+      .find((f) => f.path === "entry.js")
+      .references.map((r) => r.target)
+      .sort(),
+    [
+      "./default.js",
+      "./named.js",
+      "./shared.js",
+      "./side.css",
+      "./lazy.js",
+      "./legacy.cjs",
+    ].sort(),
+  );
+  assert.equal(
+    result.files.find((f) => f.path === "style.css").references.length,
+    2,
+  );
+});

@@ -515,10 +515,22 @@ window.pageTrace.onProgress((p) => {
       `${p.files} files saved · ${size(p.bytes)} · ${p.pages} pages · ${p.queued} queued · ${p.url}`;
     return;
   }
-  $("progress-detail").textContent =
-    operation === "export"
-      ? `${p.files.toLocaleString()} files processed · ${size(p.bytes)} retained`
-      : `${p.files.toLocaleString()} files inspected · ${size(p.bytes)} inventoried. Media content is not loaded.`;
+  const labels = {
+    "preparing-sample": "Preparing local example",
+    "reading-directory": "Reading folder",
+    "parsing-source": "Analyzing source",
+    inventory: "Measuring files",
+    "resolving-references": "Connecting file references",
+  };
+  if (operation === "export")
+    $("progress-detail").textContent =
+      `${p.files.toLocaleString()} files processed · ${size(p.bytes)} retained`;
+  else {
+    $("progress-title").textContent =
+      (labels[p.phase] || "Scanning website") + "…";
+    $("progress-detail").textContent =
+      `${p.files.toLocaleString()} files inspected · ${size(p.bytes)} inventoried${p.currentPath ? " · " + p.currentPath : ""}`;
+  }
 });
 renderLegend();
 renderPages();
