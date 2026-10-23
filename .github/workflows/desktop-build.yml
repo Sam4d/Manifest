@@ -49,7 +49,14 @@ jobs:
       - uses: microsoft/setup-msbuild@v2
       - name: Build bundled HTTrack from verified source
         shell: pwsh
-        run: ./scripts/build-httrack.ps1
+        run: |
+          try { ./scripts/build-httrack.ps1 *>&1 | Tee-Object -Variable buildOutput }
+          catch {
+            "## HTTrack build failed" | Out-File $env:GITHUB_STEP_SUMMARY -Append
+            $buildOutput | Select-Object -Last 100 | Out-File $env:GITHUB_STEP_SUMMARY -Append
+            $_ | Out-File $env:GITHUB_STEP_SUMMARY -Append
+            throw
+          }
       - name: Test real HTTrack download to reconstruction kit
         run: node scripts/httrack-smoke.cjs vendor/httrack/httrack.exe
       - name: Check automatic HTTrack desktop pipeline

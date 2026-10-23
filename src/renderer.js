@@ -94,7 +94,7 @@ function setBusy(value) {
   operation = value;
   document
     .querySelectorAll(
-      "#capture-form input, #capture-form select, #capture-form textarea, #capture-form button, #capture-sites button, #resume-capture, #open-capture",
+      "#capture-form input, #capture-form select, #capture-form textarea, #capture-form button, #capture-sites button, #resume-capture, #open-capture, #httrack-full",
     )
     .forEach((e) => (e.disabled = !!value || e.dataset.unavailable === "true"));
   $("scan").disabled = !!value;
@@ -672,10 +672,20 @@ async function beginCapture(resume = false) {
         });
     if (result) {
       showCaptures(result);
+      if (result.manifest) {
+        data = result.manifest;
+        $("open-export").hidden = false;
+        $("step-three").classList.add("complete");
+        $("search").value = "";
+        $("decision-filter").value = "all";
+        render();
+      }
       message(
         result.paused
           ? "Capture paused and saved. Use Resume a saved capture to continue."
-          : "Capture saved. Select a site to analyze, then export your AI kit.",
+          : result.manifest
+            ? "Full capture saved. Your essentials folder, schema, diagram and report are ready."
+            : "Capture saved. Select a site to analyze, then export your AI kit.",
       );
     } else message("Folder selection cancelled.", "info");
   } catch (e) {

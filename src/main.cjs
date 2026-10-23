@@ -281,6 +281,10 @@ async function runCapture(project) {
         ...site,
         index,
       })),
+      manifest:
+        project.options.mode === "httrack" && capturedSites.length
+          ? publicManifest(current)
+          : null,
       paused: signal.aborted,
     };
   } finally {
