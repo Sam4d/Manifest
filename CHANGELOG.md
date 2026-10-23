@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.1 — Capture folder compatibility
+
+- Keep native output in the selected directory even when its name contains commas or spaces.
+- Exercise the real HTTrack engine with those folder names before publication.
+
 ## 0.5.0 — Full capture to reconstruction kit
 
 - Added the actual HTTrack engine capture mode, with automatic analysis and essentials export after the full mirror completes.
