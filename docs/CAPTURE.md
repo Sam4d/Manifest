@@ -1,5 +1,8 @@
 # Capture websites with PageTrace 0.4
 
+**PageTrace 0.5:** the default **HTTrack** mode runs the bundled native engine and automatically produces the essentials folder, schema, SVG diagram and report. Its options and resume behavior are documented in [HTTRACK.md](HTTRACK.md). The implementation details and limits below describe the built-in Fast/Browser engines.
+
+
 PageTrace can now download public websites before analyzing them. All capture traffic uses the desktop computer's internet connection. No PageTrace crawling server, Vercel function or cloud upload is required. The Windows app is the supported delivery target; a browser-only app is deferred.
 
 ![Multi-site capture setup](images/11-capture-setup.png)

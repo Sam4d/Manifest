@@ -115,3 +115,9 @@ Do not commit executables or dependency/build caches into the source tree. Incre
 PageTrace is a source-analysis and reconstruction tool. Site compilation, arbitrary custom per-file export selections, archive extraction, media transcoding, complete HTTrack-option parity, and pixel-perfect cloning are outside this version’s workflow. Public website capture and bounded browser rendering are available in 0.4. Improvements should preserve the default offline behavior and the original input folder.
 
 The release workflow also launches the actual `dist/win-unpacked/PageTrace.exe` and the portable self-extracting executable. An external CDP driver checks their own packaged preload, native sample creation, ASAR dependencies, successful three-page scan, search, and dark mode before publication. CDP is enabled only by the test launch arguments, never by normal launches.
+
+## HTTrack pipeline (0.5)
+
+`httrack-engine.cjs` invokes the bundled native CLI via `spawn` with argument arrays and no shell. Capture settings map to documented native options. Cancellation terminates the child; HTTrack's cache remains with the full mirror for continuation. The main process then scans that mirror with HTTrack metadata exclusions and exports the reconstruction kit automatically. Windows CI compiles a SHA-256-pinned upstream source archive, tests the real engine and complete Electron pipeline, and packages the CLI, DLLs, notices, source archive and build recipe as resources outside ASAR.
+
+`site-schema.cjs` emits a complete static dependency graph and an escaped SVG page diagram (up to 80 pages pictured, all relationships in JSON). Reports embed the same SVG. No graph rendering service, external fonts or remote scripts are required. Uncertain JavaScript remains retained; static analysis does not certify that a bundle can be safely removed.

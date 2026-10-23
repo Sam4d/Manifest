@@ -38,7 +38,7 @@ function excluded(relative) {
   return (
     parts.includes("hts-cache") ||
     (parts.length === 1 &&
-      /^(hts-(log|err)\.txt|hts-in_progress\.lock|winprofile\.ini)$/.test(
+      /^(hts-(log|err)\.txt|hts-in_progress\.lock|winprofile\.ini|cookies\.txt)$/.test(
         parts[0],
       ))
   );
