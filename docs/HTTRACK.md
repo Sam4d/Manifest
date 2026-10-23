@@ -16,6 +16,12 @@ The full download is never reduced in place. Videos/audio, large binaries, insta
 
 HTTrack mode maps timeout and retry controls to native options. With **Full mirror** unchecked it also maps depth, total-byte and per-file-byte limits; otherwise those fields are disabled and HTTrack uses its defaults. Page/file counts, delay, include/exclude filters and external-assets controls apply to the built-in capture modes, not this adapter; the UI disables them in HTTrack mode. A successful engine exit is labeled **REVIEW LOG** because it can still contain per-URL failures or hit a limit; inspect `hts-log.txt`. Pause stops the native engine, preserving its cache; resuming the PageTrace project invokes HTTrack's cache continuation. The built-in Browser mode remains available separately for rendered DOM capture.
 
+### Diagram example
+
+The diagram below is generated from PageTrace's local sample website, not a design mockup. Page arrows represent discovered local links; the JSON schema includes asset relationships as well.
+
+![Generated website relationship map](images/15-website-map.svg)
+
 ## Use an existing HTTrack project
 
 1. Finish or stop your download in HTTrack first. Avoid importing while it is still modifying files.
