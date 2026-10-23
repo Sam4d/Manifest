@@ -250,9 +250,10 @@ async function runCapture(project) {
           render: (url, signal, permitted) =>
             renderPage(url, signal, permitted, {
               timeoutMs: project.options.timeoutMs,
+              maxRequests: project.options.maxFiles || Infinity,
               maxBytes: Math.min(
-                project.options.maxBytes,
-                project.options.maxFileBytes,
+                project.options.maxBytes || Infinity,
+                project.options.maxFileBytes || Infinity,
               ),
             }),
         },
@@ -294,13 +295,8 @@ async function runCapture(project) {
 ipcMain.handle("capture", async (event, input) => {
   authorized(event);
   if (busy) throw Error("An operation is already running.");
-  if (
-    !input ||
-    !Array.isArray(input.urls) ||
-    input.urls.length < 1 ||
-    input.urls.length > 20
-  )
-    throw Error("Enter 1–20 website URLs.");
+  if (!input || !Array.isArray(input.urls) || input.urls.length < 1)
+    throw Error("Enter at least one website URL.");
   const urls = [...new Set(input.urls.map((value) => urlOf(value)))];
   if (urls.includes(null))
     throw Error("Use complete HTTP(S) URLs without embedded credentials.");
@@ -350,7 +346,6 @@ ipcMain.handle("resume-capture", async (event) => {
     if (
       project.version !== 1 ||
       !Array.isArray(project.sites) ||
-      project.sites.length > 20 ||
       !project.sites.length
     )
       throw Error("Invalid capture project.");

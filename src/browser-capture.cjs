@@ -11,7 +11,8 @@ async function renderPage(url, signal, permitted, limits = {}) {
   const resources = new Set();
   let requests = 0,
     received = 0;
-  const maxBytes = limits.maxBytes || 50 * 1048576;
+  const maxBytes = limits.maxBytes ?? 50 * 1048576;
+  const maxRequests = limits.maxRequests ?? 2000;
   isolated.on("will-download", (event) => event.preventDefault());
   isolated.webRequest.onBeforeRequest((details, callback) => {
     if (
@@ -19,7 +20,7 @@ async function renderPage(url, signal, permitted, limits = {}) {
       !["GET", "HEAD", "OPTIONS"].includes(details.method) ||
       (details.resourceType === "mainFrame" &&
         new URL(details.url).origin !== new URL(url).origin) ||
-      ++requests > 2000
+      ++requests > maxRequests
     )
       return callback({ cancel: true });
     permitted(details.url).then(

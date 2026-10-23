@@ -18,11 +18,12 @@ function argumentsFor(url, directory, opts, resume = false) {
     ...(opts.httrackFull
       ? []
       : [
-          "-r" + opts.maxDepth,
-          "-M" + opts.maxBytes,
-          "-m" + opts.maxFileBytes + "," + opts.maxFileBytes,
+          ...(opts.maxDepth > 0 ? ["-r" + opts.maxDepth] : []),
+          ...(opts.maxBytes > 0 ? ["-M" + opts.maxBytes] : []),
+          ...(opts.maxFileBytes > 0
+            ? ["-m" + opts.maxFileBytes + "," + opts.maxFileBytes]
+            : []),
         ]),
-    "-T" + Math.ceil(opts.timeoutMs / 1000),
     "-R" + opts.retries,
     "-%P",
     "-n",

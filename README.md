@@ -26,7 +26,7 @@ Or open [Releases](https://github.com/Sam4d/Manifest/releases/latest) for the in
 
 ## Download everything first. Rebuild with the essentials.
 
-The default **HTTrack** mode uses the real engine, included in Windows releases. It downloads the full mirror, then automatically creates a separate essentials folder, AI-ready schema, HTML report and SVG website diagram. The original capture stays intact. Depth/size limits and HTTrack discovery still apply; unavailable or undiscovered files cannot be guaranteed. [Pipeline and engine documentation](docs/HTTRACK.md).
+The default **HTTrack** mode uses the real engine, included in Windows releases. **Skip download limits** is enabled by default; uncheck it for individual caps, with **0 = unlimited**. It downloads the full mirror, then automatically creates a separate essentials folder, AI-ready schema, HTML report and SVG website diagram. The original capture stays intact. Depth/size limits and HTTrack discovery still apply; unavailable or undiscovered files cannot be guaranteed. [Pipeline and engine documentation](docs/HTTRACK.md).
 
 ## HTTrack projects welcome
 

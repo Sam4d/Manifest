@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.2 — Simple unlimited downloads
+
+- Added one Skip download limits switch, enabled by default.
+- Zero means unlimited for page count, file count, link depth, total bytes and per-file bytes across capture modes.
+- Hide unused controls in HTTrack mode and omit zero-valued native cap flags. Native connection timeouts use HTTrack defaults.
+- Removed the starting-URL count ceiling and arbitrary download size/depth ceilings; positive limits remain optional.
+- Added unlimited, mixed-limit, resume, native-argument and desktop-control regression checks.
+
 ## 0.5.1 — Capture folder compatibility
 
 - Keep native output in the selected directory even when its name contains commas or spaces.

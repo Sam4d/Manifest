@@ -85,6 +85,36 @@ async function waitFor(window, expression) {
           await run("document.getElementById('export').disabled"),
           true,
         );
+        assert.equal(
+          await run("document.getElementById('httrack-full').checked"),
+          true,
+        );
+        await run("document.getElementById('httrack-full').click()");
+        assert.equal(
+          await run("document.getElementById('capture-depth').disabled"),
+          false,
+        );
+        assert.equal(
+          await run("document.getElementById('capture-depth').value"),
+          "0",
+        );
+        assert.equal(
+          await run("document.getElementById('capture-mb').checkValidity()"),
+          true,
+        );
+        await run(
+          "document.getElementById('capture-depth').value='8';document.getElementById('httrack-full').click()",
+        );
+        assert.equal(
+          await run("document.getElementById('capture-depth').value"),
+          "0",
+        );
+        assert.equal(
+          await run(
+            "document.getElementById('capture-depth').closest('label').hidden",
+          ),
+          true,
+        );
         // Invalid input gives a useful error instead of opening a native dialog.
         await run(
           "document.getElementById('threshold').value='0';document.getElementById('scan').click()",

@@ -45,7 +45,16 @@ const { options } = require("../src/capture.cjs");
       executable,
       `http://127.0.0.1:${server.address().port}/`,
       mirror,
-      options({ maxDepth: 3, delayMs: 0, timeoutMs: 5000, maxBytes: 10485760 }),
+      options({
+        maxDepth: 0,
+        maxPages: 0,
+        maxFiles: 0,
+        maxFileBytes: 0,
+        httrackFull: false,
+        delayMs: 0,
+        timeoutMs: 5000,
+        maxBytes: 0,
+      }),
       { signal: controller.signal },
     );
     controller.signal.throwIfAborted();

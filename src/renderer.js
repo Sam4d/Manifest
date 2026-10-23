@@ -709,26 +709,33 @@ $("open-capture").onclick = async () => {
 
 function updateCaptureControls() {
   const native = $("capture-mode").value === "httrack";
-  $("httrack-engine-note").hidden = !native;
+  const skip = $("httrack-full").checked;
+  $("httrack-engine-note").hidden = false;
   $("capture-start").textContent = native
     ? "Download & build kit →"
     : "Capture websites →";
-  for (const id of ["capture-depth", "capture-mb", "capture-file-mb"]) {
-    const disabled = native && $("httrack-full").checked;
-    $(id).dataset.unavailable = String(disabled);
-    $(id).disabled = disabled || !!operation;
-  }
-  for (const id of [
+  const limits = [
+    "capture-pages",
+    "capture-files",
+    "capture-depth",
+    "capture-mb",
+    "capture-file-mb",
+  ];
+  const unsupported = [
     "capture-pages",
     "capture-files",
     "capture-delay",
     "capture-include",
     "capture-exclude",
     "capture-external",
-  ]) {
-    if (!$(id)) continue;
-    $(id).dataset.unavailable = String(native);
-    $(id).disabled = native || !!operation;
+  ];
+  for (const id of new Set([...limits, ...unsupported])) {
+    const hidden =
+      (skip && limits.includes(id)) || (native && unsupported.includes(id));
+    if (skip && limits.includes(id)) $(id).value = "0";
+    $(id).dataset.unavailable = String(hidden);
+    $(id).disabled = hidden || !!operation;
+    $(id).closest("label").hidden = hidden;
   }
 }
 $("capture-mode").addEventListener("change", updateCaptureControls);

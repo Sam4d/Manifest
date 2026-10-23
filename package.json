@@ -1,6 +1,6 @@
 {
   "name": "pagetrace",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Website capture, structure analysis and AI-ready source export for Windows",
   "main": "src/main.cjs",
   "private": true,

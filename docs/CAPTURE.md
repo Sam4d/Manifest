@@ -9,7 +9,7 @@ PageTrace can now download public websites before analyzing them. All capture tr
 
 ## Start a capture
 
-1. On Overview, paste complete HTTP(S) URLs, one per line, up to 20.
+1. On Overview, paste complete HTTP(S) URLs, one per line.
 2. Choose **Fast** for linked pages and assets, or **Browser** for JavaScript-rendered HTML and discovered network resource URLs.
 3. Set the page count, link depth and stored-data budget. Under More capture controls, set file count, per-file size, delay, retries, URL include/exclude patterns and external assets.
 4. Click **Capture websites** and choose a destination. A unique project folder is created, with a separate numbered folder for each starting URL, including multiple URLs on the same host.

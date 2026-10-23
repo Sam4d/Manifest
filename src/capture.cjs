@@ -47,11 +47,11 @@ function options(input = {}) {
     ...input,
   };
   for (const [key, min, max] of [
-    ["maxPages", 1, 10000],
-    ["maxFiles", 1, 100000],
-    ["maxDepth", 0, 30],
-    ["maxBytes", 1024, 20 * 1073741824],
-    ["maxFileBytes", 1024, 2 * 1073741824],
+    ["maxPages", 0, Number.MAX_SAFE_INTEGER],
+    ["maxFiles", 0, Number.MAX_SAFE_INTEGER],
+    ["maxDepth", 0, Number.MAX_SAFE_INTEGER],
+    ["maxBytes", 0, Number.MAX_SAFE_INTEGER],
+    ["maxFileBytes", 0, Number.MAX_SAFE_INTEGER],
     ["delayMs", 0, 60000],
     ["timeoutMs", 100, 120000],
     ["retries", 0, 5],
@@ -274,6 +274,7 @@ async function request(url, opts, signal, acceptRedirect, onResponse) {
     }
   }
 }
+const cap = (value) => (value === 0 ? Infinity : value);
 async function captureSite(
   seed,
   directory,
@@ -310,7 +311,7 @@ async function captureSite(
   if (
     !Array.isArray(state.records) ||
     !Array.isArray(state.queue) ||
-    state.records.length + state.queue.length > opts.maxFiles
+    state.records.length + state.queue.length > cap(opts.maxFiles)
   )
     throw Error("Invalid saved capture.");
   for (const item of [...state.records, ...state.queue]) {
@@ -374,13 +375,13 @@ async function captureSite(
   }
   function enqueue(ref, depth) {
     if (seen.has(ref.url)) return;
-    if (state.queue.length + state.records.length >= opts.maxFiles) {
+    if (state.queue.length + state.records.length >= cap(opts.maxFiles)) {
       state.truncatedDiscovery = (state.truncatedDiscovery || 0) + 1;
       return;
     }
     if (
       ref.page &&
-      (depth > opts.maxDepth || new URL(ref.url).origin !== origin)
+      (depth > cap(opts.maxDepth) || new URL(ref.url).origin !== origin)
     )
       return;
     if (
@@ -406,15 +407,15 @@ async function captureSite(
     while (state.queue.length) {
       abort(signal);
       if (
-        state.bytes >= opts.maxBytes ||
+        state.bytes >= cap(opts.maxBytes) ||
         state.records.filter((r) => r.status === "saved").length >=
-          opts.maxFiles
+          cap(opts.maxFiles)
       ) {
         state.status = "limited";
         break;
       }
       const item = state.queue[0];
-      if (item.page && state.pages >= opts.maxPages) {
+      if (item.page && state.pages >= cap(opts.maxPages)) {
         state.records.push({
           ...item,
           status: "skipped",
@@ -453,7 +454,7 @@ async function captureSite(
                 await response.body?.cancel();
                 throw Error("External HTML outside page scope.");
               }
-              if (/html/i.test(mime) && state.pages >= opts.maxPages) {
+              if (/html/i.test(mime) && state.pages >= cap(opts.maxPages)) {
                 await response.body?.cancel();
                 throw Error("Page limit");
               }
@@ -466,8 +467,8 @@ async function captureSite(
                 for await (const chunk of response.body) {
                   bytes += chunk.length;
                   if (
-                    bytes > opts.maxFileBytes ||
-                    state.bytes + bytes > opts.maxBytes
+                    bytes > cap(opts.maxFileBytes) ||
+                    state.bytes + bytes > cap(opts.maxBytes)
                   )
                     throw Error("Download byte limit");
                   await handle.writeFile(chunk);
@@ -525,9 +526,9 @@ async function captureSite(
                     (next) => permitted(next, false),
                   );
                   if (
-                    Buffer.byteLength(snapshot.html) > opts.maxFileBytes ||
+                    Buffer.byteLength(snapshot.html) > cap(opts.maxFileBytes) ||
                     state.bytes + Buffer.byteLength(snapshot.html) >
-                      opts.maxBytes
+                      cap(opts.maxBytes)
                   )
                     throw Error("Rendered DOM exceeds byte limit.");
                   record.renderedFile =

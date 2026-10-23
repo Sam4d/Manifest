@@ -130,7 +130,7 @@
             Local by design<span>No uploads. Your files stay yours.</span>
           </div>
         </div>
-        <div class="version">PAGETRACE <span>v0.5.1</span></div>
+        <div class="version">PAGETRACE <span>v0.5.2</span></div>
       </div>
     </aside>
     <main>
@@ -227,20 +227,18 @@
               essentials folder, website schema and visual report automatically.
             </p>
             <label
-              ><input id="httrack-full" type="checkbox" checked /> Full mirror ·
-              use HTTrack’s native depth and size defaults</label
+              ><input id="httrack-full" type="checkbox" checked /> Skip download
+              limits</label
             >
             <p class="muted">
-              Uncheck to apply the depth and size limits below. Page/file counts
-              and URL filters apply to Fast and Browser modes.
+              Keep it simple: enter a URL and download. Uncheck to set
+              individual limits. Enter 0 for unlimited depth or size.
             </p>
           </div>
           <form id="capture-form">
             <label for="capture-urls"
               >Website URLs
-              <small
-                >One per line, up to 20. Each gets its own folder.</small
-              ></label
+              <small>One per line. Each gets its own folder.</small></label
             >
             <textarea
               id="capture-urls"
@@ -261,30 +259,27 @@
                 </select></label
               >
               <label
-                >Page limit<input
+                >Page limit (0 = unlimited)<input
                   id="capture-pages"
                   type="number"
-                  min="1"
-                  max="10000"
-                  value="100"
+                  min="0"
+                  value="0"
                   required
               /></label>
               <label
-                >Link depth<input
+                >Link depth (0 = unlimited)<input
                   id="capture-depth"
                   type="number"
                   min="0"
-                  max="30"
-                  value="3"
+                  value="0"
                   required
               /></label>
               <label
-                >Stored data limit (MiB)<input
+                >Total MiB (0 = unlimited)<input
                   id="capture-mb"
                   type="number"
-                  min="1"
-                  max="20480"
-                  value="500"
+                  min="0"
+                  value="0"
                   required
               /></label>
             </div>
@@ -292,21 +287,19 @@
               <summary>More capture controls</summary>
               <div class="capture-controls">
                 <label
-                  >File limit<input
+                  >File count (0 = unlimited)<input
                     id="capture-files"
                     type="number"
-                    min="1"
-                    max="100000"
-                    value="2000"
+                    min="0"
+                    value="0"
                     required
                 /></label>
                 <label
-                  >Per-file limit (MiB)<input
+                  >Per-file MiB (0 = unlimited)<input
                     id="capture-file-mb"
                     type="number"
-                    min="1"
-                    max="2048"
-                    value="50"
+                    min="0"
+                    value="0"
                     required
                 /></label>
                 <label
@@ -319,7 +312,7 @@
                     required
                 /></label>
                 <label
-                  >Retries<input
+                  >Retry attempts (0 = none)<input
                     id="capture-retries"
                     type="number"
                     min="0"

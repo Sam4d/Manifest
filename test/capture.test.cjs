@@ -218,3 +218,59 @@ test("discovers base URL, inline styles, manifests and sitemap entries", async (
     )[0].page,
   );
 });
+test("zero download limits capture all discovered files and survive resume serialization", async (t) => {
+  const { dir, url } = await fixture(t);
+  const opts = {
+    delayMs: 0,
+    maxPages: 0,
+    maxFiles: 0,
+    maxDepth: 0,
+    maxBytes: 0,
+    maxFileBytes: 0,
+  };
+  const first = await captureSite(url + "/", dir, opts);
+  assert.ok(first.state.pages >= 2);
+  assert.ok(first.state.records.length > 3);
+  const large = first.state.records.find((r) => r.url.endsWith("/huge.png"));
+  assert.equal(large.status, "saved");
+  assert.ok(large.bytes >= 2048);
+  assert.ok(
+    first.state.records.some(
+      (r) => r.url.endsWith("/module.js") && r.status === "saved",
+    ),
+  );
+  assert.notEqual(first.state.status, "limited");
+  const stored = JSON.parse(
+    await fs.readFile(path.join(dir, "capture.json"), "utf8"),
+  );
+  for (const key of [
+    "maxPages",
+    "maxFiles",
+    "maxDepth",
+    "maxBytes",
+    "maxFileBytes",
+  ])
+    assert.equal(stored.options[key], 0);
+  const resumed = await captureSite(url + "/", dir, opts, {}, true);
+  assert.equal(resumed.state.records.length, first.state.records.length);
+});
+test("positive page limit still applies when the remaining limits are unlimited", async (t) => {
+  const { dir, url } = await fixture(t);
+  const result = await captureSite(url + "/", dir, {
+    delayMs: 0,
+    maxPages: 1,
+    maxFiles: 0,
+    maxDepth: 0,
+    maxBytes: 0,
+    maxFileBytes: 0,
+  });
+  assert.equal(result.state.pages, 1);
+  assert.ok(
+    result.state.records.some(
+      (r) => r.url.endsWith("/movie.mp4") && r.status === "saved",
+    ),
+  );
+  assert.throws(() => options({ maxBytes: -1 }));
+  assert.throws(() => options({ maxFiles: 1.5 }));
+  assert.equal(options({ maxBytes: 64 * 1024 ** 3 }).maxBytes, 64 * 1024 ** 3);
+});

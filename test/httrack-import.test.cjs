@@ -125,3 +125,26 @@ test("HTTrack command uses separate arguments and does not exclude media from fu
     /HTTP/,
   );
 });
+test("native zero limits omit cap flags independently while positive limits remain effective", () => {
+  const { argumentsFor } = require("../src/httrack-engine.cjs");
+  const { options } = require("../src/capture.cjs");
+  const unlimited = argumentsFor(
+    "https://example.com/",
+    ".",
+    options({ httrackFull: false, maxDepth: 0, maxBytes: 0, maxFileBytes: 0 }),
+  );
+  assert.ok(!unlimited.some((a) => /^-r|^-M|^-m/.test(a)));
+  const mixed = argumentsFor(
+    "https://example.com/",
+    ".",
+    options({
+      httrackFull: false,
+      maxDepth: 2,
+      maxBytes: 0,
+      maxFileBytes: 2048,
+    }),
+  );
+  assert.ok(mixed.includes("-r2"));
+  assert.ok(mixed.includes("-m2048,2048"));
+  assert.ok(!mixed.some((a) => a.startsWith("-M")));
+});
