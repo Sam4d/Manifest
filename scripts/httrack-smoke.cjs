@@ -85,5 +85,10 @@ const { options } = require("../src/capture.cjs");
   }
 })().catch((error) => {
   console.error(error);
+  if (process.env.GITHUB_STEP_SUMMARY)
+    require("node:fs").appendFileSync(
+      process.env.GITHUB_STEP_SUMMARY,
+      "\n## Real HTTrack pipeline failure\n\n```\n" + error.stack + "\n```\n",
+    );
   process.exitCode = 1;
 });

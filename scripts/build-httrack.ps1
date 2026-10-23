@@ -10,6 +10,12 @@ New-Item -ItemType Directory -Force $buildRoot | Out-Null
 tar -xzf $archive -C $buildRoot
 if ($LASTEXITCODE -ne 0) { throw 'Source extraction failed' }
 $source = Join-Path $buildRoot "httrack-$version"
+# Only Release is shipped; avoid compiling every dependency twice.
+$overlay = Join-Path $buildRoot 'triplets'
+New-Item -ItemType Directory -Force $overlay | Out-Null
+Copy-Item "$env:VCPKG_INSTALLATION_ROOT\triplets\x64-windows.cmake" "$overlay\x64-windows.cmake"
+Add-Content "$overlay\x64-windows.cmake" "`nset(VCPKG_BUILD_TYPE release)"
+$env:VCPKG_OVERLAY_TRIPLETS = $overlay
 & "$env:VCPKG_INSTALLATION_ROOT\vcpkg.exe" integrate install
 if ($LASTEXITCODE -ne 0) { throw 'vcpkg integration failed' }
 msbuild "$source\src\httrack.vcxproj" /m /p:Configuration=Release /p:Platform=x64 /p:VcpkgEnabled=true

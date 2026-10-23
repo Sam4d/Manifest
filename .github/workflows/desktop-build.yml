@@ -47,10 +47,11 @@ jobs:
       - name: Check multi-site and rendered capture
         run: npm run test:capture:desktop
       - uses: microsoft/setup-msbuild@v2
-      - uses: actions/cache@v4
+      - uses: actions/cache/restore@v4
+        id: httrack-cache
         with:
           path: ${{ runner.temp }}/vcpkg-binary-cache
-          key: httrack-3.50.5-msvc-vcpkg-${{ runner.os }}
+          key: httrack-3.50.5-release-msvc-vcpkg-${{ runner.os }}
       - name: Build bundled HTTrack from verified source
         shell: pwsh
         env:
@@ -63,6 +64,12 @@ jobs:
             $_ | Out-File $env:GITHUB_STEP_SUMMARY -Append
             throw
           }
+      - name: Save native dependency cache before integration tests
+        if: steps.httrack-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/vcpkg-binary-cache
+          key: httrack-3.50.5-release-msvc-vcpkg-${{ runner.os }}
       - name: Test real HTTrack download to reconstruction kit
         run: node scripts/httrack-smoke.cjs vendor/httrack/httrack.exe
       - name: Check automatic HTTrack desktop pipeline

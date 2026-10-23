@@ -46,7 +46,7 @@ async function captureHTTrack(
   let tail = "",
     code;
   await new Promise((resolve, reject) => {
-    const child = spawn(executable, args, {
+    const child = spawn(path.resolve(executable), args, {
       cwd: directory,
       shell: false,
       windowsHide: true,
