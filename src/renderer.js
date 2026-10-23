@@ -99,6 +99,7 @@ function setBusy(value) {
     .forEach((e) => (e.disabled = !!value || e.dataset.unavailable === "true"));
   $("scan").disabled = !!value;
   $("sample").disabled = !!value;
+  $("import-httrack").disabled = !!value;
   $("export").disabled = !!value || !data;
   $("threshold").disabled = !!value;
   $("open-export").disabled = !!value;
@@ -418,7 +419,7 @@ $("file-dialog").onclick = (e) => {
 };
 $("search").oninput = renderFiles;
 $("decision-filter").onchange = renderFiles;
-async function beginScan(sample = false) {
+async function beginScan(sample = false, httrack = false) {
   const threshold = Number($("threshold").value);
   if (!Number.isFinite(threshold) || threshold < 1 || threshold > 1000) {
     message(
@@ -432,13 +433,17 @@ async function beginScan(sample = false) {
   message(
     sample
       ? "Preparing a local sample website. This is example content, not your files."
-      : "Choose the root folder of your extracted website.",
+      : httrack
+        ? "Choose the HTTrack project folder containing hts-cache. Cache and logs will be excluded."
+        : "Choose the root folder of your extracted website.",
     "info",
   );
   try {
     const result = sample
       ? await window.pageTrace.sample(threshold)
-      : await window.pageTrace.scan(threshold);
+      : httrack
+        ? await window.pageTrace.importHTTrack(threshold)
+        : await window.pageTrace.scan(threshold);
     if (result) {
       data = result;
       $("search").value = "";
@@ -450,7 +455,9 @@ async function beginScan(sample = false) {
       message(
         sample
           ? "You’re exploring a sample website. Choose your own folder whenever you’re ready."
-          : "Your blueprint is ready. Explore the structure, then export to a separate folder.",
+          : httrack
+            ? "HTTrack mirror imported. Cache and logs excluded. Explore the structure, then export your lightweight blueprint."
+            : "Your blueprint is ready. Explore the structure, then export to a separate folder.",
       );
     } else
       message(
@@ -470,6 +477,7 @@ async function beginScan(sample = false) {
 }
 $("scan").onclick = () => beginScan();
 $("sample").onclick = () => beginScan(true);
+$("import-httrack").onclick = () => beginScan(false, true);
 $("cancel").onclick = async () => {
   try {
     await window.pageTrace.cancel();
@@ -510,6 +518,12 @@ $("open-export").onclick = async () => {
   }
 };
 window.pageTrace.onProgress((p) => {
+  if (p.phase === "httrack-download") {
+    $("progress-title").textContent = "HTTrack · downloading full mirror…";
+    $("progress-detail").textContent =
+      p.currentPath || p.site || "Downloading…";
+    return;
+  }
   if (p.phase === "capture") {
     $("progress-detail").textContent =
       `${p.files} files saved · ${size(p.bytes)} · ${p.pages} pages · ${p.queued} queued · ${p.url}`;
@@ -517,6 +531,7 @@ window.pageTrace.onProgress((p) => {
   }
   const labels = {
     "preparing-sample": "Preparing local example",
+    "httrack-download": "HTTrack · downloading full mirror",
     "reading-directory": "Reading folder",
     "parsing-source": "Analyzing source",
     inventory: "Measuring files",
@@ -578,7 +593,7 @@ function showCaptures(result) {
         text("strong", site.url),
         text(
           "small",
-          `${site.status.toUpperCase()} · ${site.pages} pages · ${site.files} files · ${size(site.bytes)} · ${site.failed} failures / rendering warnings`,
+          `${site.status.toUpperCase()} · ${site.pages} pages · ${site.files} files · ${size(site.bytes)} · ${site.failed ?? "See hts-log.txt for"} failures / rendering warnings`,
         ),
       );
       const button = text(
@@ -611,6 +626,14 @@ function showCaptures(result) {
           setBusy(null);
         }
       };
+      if (site.kit)
+        info.append(
+          text(
+            "p",
+            "Reconstruction kit ready: " + site.kit,
+            "capture-description",
+          ),
+        );
       row.append(info, button);
       return row;
     }),
@@ -634,6 +657,7 @@ async function beginCapture(resume = false) {
             .filter(Boolean),
           options: {
             mode: $("capture-mode").value,
+            httrackFull: $("httrack-full").checked,
             maxPages: Number($("capture-pages").value),
             maxDepth: Number($("capture-depth").value),
             maxBytes: Number($("capture-mb").value) * 1048576,
@@ -672,3 +696,31 @@ $("open-capture").onclick = async () => {
     message(e.message, "error");
   }
 };
+
+function updateCaptureControls() {
+  const native = $("capture-mode").value === "httrack";
+  $("httrack-engine-note").hidden = !native;
+  $("capture-start").textContent = native
+    ? "Download & build kit →"
+    : "Capture websites →";
+  for (const id of ["capture-depth", "capture-mb", "capture-file-mb"]) {
+    const disabled = native && $("httrack-full").checked;
+    $(id).dataset.unavailable = String(disabled);
+    $(id).disabled = disabled || !!operation;
+  }
+  for (const id of [
+    "capture-pages",
+    "capture-files",
+    "capture-delay",
+    "capture-include",
+    "capture-exclude",
+    "capture-external",
+  ]) {
+    if (!$(id)) continue;
+    $(id).dataset.unavailable = String(native);
+    $(id).disabled = native || !!operation;
+  }
+}
+$("capture-mode").addEventListener("change", updateCaptureControls);
+$("httrack-full").addEventListener("change", updateCaptureControls);
+updateCaptureControls();

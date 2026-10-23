@@ -130,7 +130,7 @@
             Local by design<span>No uploads. Your files stay yours.</span>
           </div>
         </div>
-        <div class="version">PAGETRACE <span>v0.4.1</span></div>
+        <div class="version">PAGETRACE <span>v0.5.0</span></div>
       </div>
     </aside>
     <main>
@@ -207,6 +207,34 @@
               Resume a saved capture
             </button>
           </div>
+          <div class="httrack-handoff">
+            <div>
+              <strong>Already captured with HTTrack?</strong>
+              <p>
+                Turn a saved mirror into a structure report, AI manifest, and
+                lighter copy. Select the project folder containing
+                <code>hts-cache</code>. Download caches, logs, and settings stay
+                out of your export.
+              </p>
+            </div>
+            <button id="import-httrack" class="button secondary" type="button">
+              Import HTTrack mirror
+            </button>
+          </div>
+          <div id="httrack-engine-note" class="httrack-engine-note">
+            <p>
+              Download the full mirror first. PageTrace then builds your
+              essentials folder, website schema and visual report automatically.
+            </p>
+            <label
+              ><input id="httrack-full" type="checkbox" checked /> Full mirror ·
+              use HTTrack’s native depth and size defaults</label
+            >
+            <p class="muted">
+              Uncheck to apply the depth and size limits below. Page/file counts
+              and URL filters apply to Fast and Browser modes.
+            </p>
+          </div>
           <form id="capture-form">
             <label for="capture-urls"
               >Website URLs
@@ -223,6 +251,9 @@
             <div class="capture-controls">
               <label
                 >Capture mode<select id="capture-mode">
+                  <option value="httrack">
+                    HTTrack · full mirror → essentials + schema
+                  </option>
                   <option value="static">Fast · linked pages & assets</option>
                   <option value="browser">
                     Browser · JavaScript & rendered DOM

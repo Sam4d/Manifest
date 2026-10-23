@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.5.0 — Full capture to reconstruction kit
+
+- Added the actual HTTrack engine capture mode, with automatic analysis and essentials export after the full mirror completes.
+- Windows releases build and bundle verified HTTrack 3.50.5 source, its native dependencies, notices, corresponding source and build recipe.
+- Exports now include schema.json, site-map.svg and an embedded page relationship diagram in the HTML report.
+- Exclude installers, archives and source maps from the derived kit; preserve core source and conservative JavaScript dependencies.
+- Added real-engine and real Electron end-to-end pipeline checks, plus packaged engine validation.
+
+### Existing HTTrack project import
+
+- Added a dedicated offline HTTrack project import with project validation and cache/log/profile exclusions.
+- Preserve saved host paths and local links, with import provenance in manifest and report.
+- Added real Electron import coverage, export fixtures, illustrated usage and transparent uploaded-installer inspection notes.
+- HTTrack runs as a separate process; the supplied installer is not executed or redistributed.
+
 ## 0.4.1 — Scan stability
 
 - Replaced reference matching that could stall on large JavaScript files.

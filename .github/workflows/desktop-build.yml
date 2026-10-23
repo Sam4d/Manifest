@@ -46,10 +46,20 @@ jobs:
         run: npm run test:desktop
       - name: Check multi-site and rendered capture
         run: npm run test:capture:desktop
+      - uses: microsoft/setup-msbuild@v2
+      - name: Build bundled HTTrack from verified source
+        shell: pwsh
+        run: ./scripts/build-httrack.ps1
+      - name: Test real HTTrack download to reconstruction kit
+        run: node scripts/httrack-smoke.cjs vendor/httrack/httrack.exe
+      - name: Check automatic HTTrack desktop pipeline
+        run: node_modules/.bin/electron scripts/httrack-desktop-smoke.cjs
       - name: Build installer and portable executable
         run: npm run dist:win
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      - name: Check engine included in packaged resources
+        run: node scripts/httrack-smoke.cjs dist/win-unpacked/resources/httrack/httrack.exe
       - name: Launch and scan using the actual Windows app
         run: node scripts/packaged-smoke.cjs dist/win-unpacked/PageTrace.exe
       - name: Launch and scan using the actual portable download
@@ -78,7 +88,7 @@ jobs:
           $lines | Set-Content dist/SHA256SUMS.txt
           gh release view $tag --json tagName *> $null
           if ($LASTEXITCODE -ne 0) {
-            gh release create $tag --target $env:GITHUB_SHA --title "PageTrace $version" --notes "Scan stability update: bounded reference parsing, isolated parser worker, per-file timeouts, current-file progress, and actual packaged Windows launch/scan tests. Download PageTrace-Windows-x64.exe to run without installing. Windows x64; unsigned build."
+            gh release create $tag --target $env:GITHUB_SHA --title "PageTrace $version" --notes "Full HTTrack engine capture, automatic essentials export, JSON website schema and SVG page diagram. Includes HTTrack corresponding source and license. Actual native engine and packaged Windows checks gate publication. Download PageTrace-Windows-x64.exe to run without installing. Windows x64; unsigned build."
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
           gh release upload $tag @files dist/SHA256SUMS.txt --clobber

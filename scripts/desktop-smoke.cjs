@@ -233,6 +233,38 @@ async function waitFor(window, expression) {
             "document.getElementById('close-dialog').click();document.querySelector('[data-appearance=light]').click()",
           );
         }
+        await fs.mkdir(path.join(source, "hts-cache"));
+        await fs.writeFile(
+          path.join(source, "hts-cache/winprofile.ini"),
+          "password=not-exported",
+        );
+        await fs.writeFile(path.join(source, "hts-log.txt"), "private log");
+        dialog.showOpenDialog = async () => ({
+          canceled: false,
+          filePaths: [source],
+        });
+        await run(
+          "document.querySelector('[data-view=overview]').click();document.getElementById('import-httrack').click()",
+        );
+        await waitFor(
+          window,
+          "document.getElementById('message').textContent.includes('HTTrack mirror imported')",
+        );
+        assert.equal(
+          await run("document.getElementById('pages-count').textContent"),
+          "1",
+        );
+        assert.equal(
+          await run("document.getElementById('import-httrack').disabled"),
+          false,
+        );
+        if (screenshots) {
+          window.setSize(1560, 1520);
+          await run(
+            "document.querySelector('[data-appearance=light]').click()",
+          );
+          await screenshot("14-httrack-import");
+        }
         assert.equal(errors.length, 0, errors.join("\n"));
         console.log(
           "Desktop smoke PASS: renderer, native dialogs, scan, validation, navigation, filters, file inspector, export, guide, and real sample scan.",

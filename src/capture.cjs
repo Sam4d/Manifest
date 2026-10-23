@@ -32,6 +32,7 @@ function urlOf(value, base) {
 function options(input = {}) {
   const out = {
     mode: "static",
+    httrackFull: false,
     maxPages: 100,
     maxFiles: 2000,
     maxDepth: 3,
@@ -58,8 +59,10 @@ function options(input = {}) {
     if (!Number.isSafeInteger(out[key]) || out[key] < min || out[key] > max)
       throw Error(`Invalid ${key} (${min}–${max}).`);
   }
-  if (!["static", "browser"].includes(out.mode))
-    throw Error("Choose static or browser capture.");
+  if (!["static", "browser", "httrack"].includes(out.mode))
+    throw Error("Choose HTTrack, static or browser capture.");
+  if (typeof out.httrackFull !== "boolean")
+    throw Error("Invalid HTTrack full-mirror setting.");
   if (typeof out.externalAssets !== "boolean")
     throw Error("Invalid external asset setting.");
   for (const key of ["include", "exclude"])

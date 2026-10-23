@@ -24,6 +24,16 @@ Or open [Releases](https://github.com/Sam4d/Manifest/releases/latest) for the in
 
 **[Read the illustrated usage guide →](docs/USER-GUIDE.md)**
 
+## Download everything first. Rebuild with the essentials.
+
+The default **HTTrack** mode uses the real engine, included in Windows releases. It downloads the full mirror, then automatically creates a separate essentials folder, AI-ready schema, HTML report and SVG website diagram. The original capture stays intact. Depth/size limits and HTTrack discovery still apply; unavailable or undiscovered files cannot be guaranteed. [Pipeline and engine documentation](docs/HTTRACK.md).
+
+## HTTrack projects welcome
+
+Already have a WinHTTrack mirror? Click **Import HTTrack mirror**, select the project containing `hts-cache`, then analyze and export a lightweight blueprint. Download caches, logs and profile settings are excluded. PageTrace also reads existing HTTrack projects offline. [Illustrated HTTrack guide and inspection notes](docs/HTTRACK.md).
+
+![Import an HTTrack mirror](docs/images/14-httrack-import.png)
+
 ## New in 0.4: capture, analyze, export
 
 Paste multiple website URLs. Capture linked pages/assets in **Fast** mode or use **Browser** mode for sandboxed JavaScript-rendered HTML. Set page/depth/file/size limits, retries, delays and URL filters. Pause and resume a persisted project. Each site gets its own full original capture, a rewritten mirror, URL mapping and a readable failure report. Select a site to analyze and export the smaller AI kit.

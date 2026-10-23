@@ -27,6 +27,18 @@ const TEXT = new Set([
   ".php",
   ".astro",
 ]);
+const FLUFF = new Set([
+  ".map",
+  ".zip",
+  ".7z",
+  ".rar",
+  ".tar",
+  ".gz",
+  ".exe",
+  ".msi",
+  ".dmg",
+  ".iso",
+]);
 const MEDIA = new Set([
   ".mp4",
   ".webm",
@@ -144,6 +156,13 @@ async function scan(root, options = {}, progress = () => {}) {
         });
         continue;
       }
+      if (options.httrack && require("./httrack-import.cjs").excluded(rel)) {
+        result.skipped.push({
+          path: rel,
+          reason: "HTTrack cache, log, or configuration",
+        });
+        continue;
+      }
       if (PRIVATE.test(rel)) {
         result.skipped.push({ path: rel, reason: "Potential credential file" });
         continue;
@@ -167,18 +186,23 @@ async function scan(root, options = {}, progress = () => {}) {
       try {
         const st = await fs.stat(abs),
           ext = path.extname(rel).toLowerCase();
-        const heavy = MEDIA.has(ext) || (!TEXT.has(ext) && st.size > threshold);
+        const heavy =
+          FLUFF.has(ext) ||
+          MEDIA.has(ext) ||
+          (!TEXT.has(ext) && st.size > threshold);
         const file = {
           path: rel,
           extension: ext || "(none)",
           bytes: st.size,
           modifiedMs: st.mtimeMs,
           decision: heavy ? "omit" : "keep",
-          reason: MEDIA.has(ext)
-            ? "Video or audio"
-            : heavy
-              ? "Large binary asset"
-              : "Source or supporting asset",
+          reason: FLUFF.has(ext)
+            ? "Archive, installer, or source map (not needed for website rendering)"
+            : MEDIA.has(ext)
+              ? "Video or audio"
+              : heavy
+                ? "Large binary asset"
+                : "Source or supporting asset",
           references: [],
         };
         result.totalBytes += st.size;
@@ -291,11 +315,11 @@ function publicManifest(scan) {
   return data;
 }
 function report(s) {
-  return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'"><title>PageTrace report</title><style>body{font:16px system-ui;background:#ffffff;color:#143d32;max-width:1000px;margin:48px auto;padding:24px}h1,h2{color:#00674F}table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:10px;border-bottom:1px solid #dfebe5}code{overflow-wrap:anywhere}small{color:#a6b2bf}</style></head><body><h1>${escape(s.name)} / PageTrace</h1><p>${s.files.length} files · ${s.pages.length} HTML pages · ${(s.totalBytes / 1048576).toFixed(1)} MiB scanned · ${(s.retainedBytes / 1048576).toFixed(1)} MiB selected</p><h2>Technology</h2><p>${escape(s.frameworks.join(", ") || "No package-based framework detected")}</p><p>${escape(
+  return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'"><title>PageTrace report</title><style>body{font:16px system-ui;background:#ffffff;color:#143d32;max-width:1000px;margin:48px auto;padding:24px}h1,h2{color:#00674F}table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:10px;border-bottom:1px solid #dfebe5}code{overflow-wrap:anywhere}small{color:#a6b2bf}</style></head><body><h1>${escape(s.name)} / PageTrace</h1><p>${s.files.length} files · ${s.pages.length} HTML pages · ${(s.totalBytes / 1048576).toFixed(1)} MiB scanned · ${(s.retainedBytes / 1048576).toFixed(1)} MiB selected</p>${s.import ? `<h2>Imported mirror</h2><p>${escape(s.import.tool)} · ${escape(s.import.note)}</p>` : ""}<h2>Technology</h2><p>${escape(s.frameworks.join(", ") || "No package-based framework detected")}</p><p>${escape(
     Object.entries(s.languages)
       .map(([k, v]) => `${k}: ${v}`)
       .join(" · "),
-  )}</p><h2>Pages & layout clues</h2>${s.pages
+  )}</p><h2>Website relationship diagram</h2>${require("./site-schema.cjs").diagram(s)}<h2>Pages & layout clues</h2>${s.pages
     .map(
       (p) =>
         `<h3>${escape(p.title)}</h3><code>${escape(p.path)}</code><p>${escape(
@@ -317,6 +341,14 @@ async function exportBundle(s, destination, progress = () => {}) {
   const lightweight = path.join(out, "lightweight");
   await fs.mkdir(lightweight);
   const exported = { ...publicManifest(s), exportWarnings: [] };
+  await fs.writeFile(
+    path.join(out, "schema.json"),
+    JSON.stringify(require("./site-schema.cjs").schema(s), null, 2),
+  );
+  await fs.writeFile(
+    path.join(out, "site-map.svg"),
+    require("./site-schema.cjs").diagram(s),
+  );
   let processed = 0,
     copiedBytes = 0;
   for (const file of s.files) {
@@ -412,7 +444,7 @@ async function exportBundle(s, destination, progress = () => {}) {
   );
   await fs.writeFile(
     path.join(out, "REBUILD.md"),
-    `# ${s.name}: reconstruction brief\n\nUse manifest.json for file relationships, page headings, structural elements, technology clues, and asset decisions. Source is in lightweight/. Replace media using lightweight/${helperName}/PAGETRACE-OMITTED.json. HTML video/audio elements have generic image placeholders; CSS and JavaScript media references may still require editing.\n\nThis is a static source inventory, not a compiled or pixel-exact recreation. Dependencies, credentials, symlinks, and caches were excluded. Inspect exported source for proprietary content or unrecognized secrets before sharing it with an AI. Source code has not been executed or sanitized for safe execution.\n`,
+    `# ${s.name}: reconstruction brief\n\nUse schema.json for the complete page/dependency graph and site-map.svg for its visual page map. Use manifest.json for file relationships, page headings, structural elements, technology clues, and asset decisions. Source is in lightweight/. Replace media using lightweight/${helperName}/PAGETRACE-OMITTED.json. HTML video/audio elements have generic image placeholders; CSS and JavaScript media references may still require editing.\n\nThis is a static source inventory, not a compiled or pixel-exact recreation. Dependencies, credentials, symlinks, and caches were excluded. Inspect exported source for proprietary content or unrecognized secrets before sharing it with an AI. Source code has not been executed or sanitized for safe execution.\n`,
   );
   progress({ files: s.files.length, bytes: copiedBytes });
   return { path: out, warnings: exported.exportWarnings };

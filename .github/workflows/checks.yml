@@ -14,10 +14,16 @@ jobs:
       - run: npm ci
       - run: npm test
       - name: Install virtual display prerequisites
-        run: sudo apt-get update && sudo apt-get install -y xvfb xauth
+        run: sudo apt-get update && sudo apt-get install -y xvfb xauth httrack
       # Ubuntu hosted runners restrict Chromium user namespaces. Only this isolated
       # CI smoke process disables Chromium's sandbox; the shipped app keeps it.
       - name: Check the real desktop interface
         run: xvfb-run -a npm run test:desktop:ci
       - name: Check multi-site and rendered capture
         run: xvfb-run -a npm run test:capture:desktop:ci
+      - name: Check real HTTrack capture and automatic blueprint pipeline
+        run: |
+          node scripts/httrack-smoke.cjs /usr/bin/httrack
+          mkdir -p vendor/httrack
+          ln -s /usr/bin/httrack vendor/httrack/httrack
+          xvfb-run -a node_modules/.bin/electron --no-sandbox --disable-gpu scripts/httrack-desktop-smoke.cjs

@@ -17,6 +17,7 @@ const { renderPage } = require("./browser-capture.cjs");
 const samples = [];
 let capturedSites = [];
 let captureProject;
+let httrackExecutable;
 
 function authorized(event) {
   if (
@@ -63,14 +64,19 @@ app.on("will-quit", () => {
       fs.rmSync(root, { recursive: true, force: true });
     } catch {}
 });
-async function performScan(threshold, source) {
+async function performScan(threshold, source, importInfo) {
   controller = new AbortController();
   try {
     const result = await scan(
       source,
-      { threshold: threshold * 1048576, signal: controller.signal },
+      {
+        threshold: threshold * 1048576,
+        signal: controller.signal,
+        httrack: !!importInfo,
+      },
       progress,
     );
+    if (importInfo) result.import = importInfo;
     current = result;
     lastExport = null;
     return publicManifest(current);
@@ -90,6 +96,25 @@ ipcMain.handle("scan", async (event, threshold) => {
     });
     if (pick.canceled) return null;
     return await performScan(threshold, pick.filePaths[0]);
+  } finally {
+    busy = false;
+  }
+});
+ipcMain.handle("import-httrack", async (event, threshold) => {
+  authorized(event);
+  if (busy) throw Error("An operation is already running.");
+  validateThreshold(threshold);
+  busy = true;
+  try {
+    const pick = await dialog.showOpenDialog(window, {
+      title: "Choose an HTTrack project folder containing hts-cache",
+      properties: ["openDirectory"],
+    });
+    if (pick.canceled) return null;
+    const info = await require("./httrack-import.cjs").inspectProject(
+      pick.filePaths[0],
+    );
+    return await performScan(threshold, pick.filePaths[0], info);
   } finally {
     busy = false;
   }
@@ -138,7 +163,38 @@ ipcMain.handle("open-export", async (event) => {
   if (error) throw Error(error);
 });
 
+async function selectHTTrack() {
+  if (httrackExecutable) return true;
+  const bundled = path.join(
+    app.isPackaged
+      ? process.resourcesPath
+      : path.join(__dirname, "..", "vendor"),
+    "httrack",
+    process.platform === "win32" ? "httrack.exe" : "httrack",
+  );
+  if (fs.existsSync(bundled)) {
+    httrackExecutable = bundled;
+    return true;
+  }
+  const pick = await dialog.showOpenDialog(window, {
+    title:
+      "Select installed HTTrack command-line executable (httrack.exe, not WinHTTrack.exe or Setup)",
+    properties: ["openFile"],
+    ...(process.platform === "win32"
+      ? { filters: [{ name: "HTTrack CLI", extensions: ["exe"] }] }
+      : {}),
+  });
+  if (pick.canceled) return false;
+  if (!/^httrack(?:\.exe)?$/i.test(path.basename(pick.filePaths[0])))
+    throw Error(
+      "Select httrack.exe (the command-line engine), not the installer or WinHTTrack interface.",
+    );
+  httrackExecutable = pick.filePaths[0];
+  return true;
+}
 async function runCapture(project) {
+  if (project.options.mode === "httrack" && !(await selectHTTrack()))
+    return null;
   controller = new AbortController();
   const signal = controller.signal;
   capturedSites = [];
@@ -146,6 +202,43 @@ async function runCapture(project) {
     for (const site of project.sites) {
       if (signal.aborted) break;
       const directory = path.join(project.directory, site.folder);
+      if (project.options.mode === "httrack") {
+        const result = await require("./httrack-engine.cjs").captureHTTrack(
+          httrackExecutable,
+          site.url,
+          directory,
+          project.options,
+          { signal, progress: (p) => progress({ ...p, site: site.url }) },
+        );
+        if (signal.aborted) break;
+        // Keep the complete mirror, then derive a separate reconstruction kit.
+        const analysis = await scan(
+          directory,
+          { httrack: true, signal },
+          progress,
+        );
+        analysis.import = {
+          tool: "HTTrack",
+          format: "local-mirror",
+          note: "Captured by the HTTrack CLI. Cache and configuration excluded from reconstruction kit.",
+        };
+        const kit = await exportBundle(analysis, project.directory, progress);
+        capturedSites.push({
+          url: site.url,
+          directory,
+          mirror: result.mirror,
+          status: "review log",
+          files: analysis.files.length,
+          pages: analysis.pages.length,
+          bytes: analysis.totalBytes,
+          failed: null,
+          kit: kit.path,
+          httrack: true,
+        });
+        current = analysis;
+        lastExport = kit.path;
+        continue;
+      }
       const resume = fs.existsSync(path.join(directory, "capture.json"));
       const result = await captureSite(
         site.url,
@@ -282,7 +375,16 @@ ipcMain.handle("analyze-capture", async (event, index, threshold) => {
     throw Error("Choose a captured site.");
   busy = true;
   try {
-    return await performScan(threshold, capturedSites[index].mirror);
+    return await performScan(
+      threshold,
+      capturedSites[index].mirror,
+      capturedSites[index].httrack
+        ? {
+            tool: "HTTrack",
+            note: "Local full capture; cache and logs excluded.",
+          }
+        : undefined,
+    );
   } finally {
     busy = false;
   }

@@ -4,6 +4,10 @@
 
 PageTrace turns a local website folder into a readable report, an AI-ready manifest, and a smaller source copy. Everything happens on your computer. The original folder stays untouched.
 
+## Import an HTTrack mirror
+
+Click **Import HTTrack mirror** in the capture panel and select the project folder containing `hts-cache`. PageTrace skips the download cache, logs and profile settings, then scans the saved website. Export normally to get the report, manifest and lightweight copy. [Full illustrated instructions and limits](HTTRACK.md).
+
 ## Appearance and keyboard controls
 
 The PageTrace accent is **`#00674F`**. Use the top-right **Light / Dark / Auto** control at any time. Light uses white surfaces; Dark uses deep-green surfaces and brighter emerald text accents. Auto follows your device. The preference is saved locally, including across app restarts.

@@ -1,6 +1,6 @@
 {
   "name": "pagetrace",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Website capture, structure analysis and AI-ready source export for Windows",
   "main": "src/main.cjs",
   "private": true,
@@ -59,6 +59,15 @@
     },
     "electronLanguages": [
       "en-US"
+    ],
+    "extraResources": [
+      {
+        "from": "vendor/httrack",
+        "to": "httrack",
+        "filter": [
+          "**/*"
+        ]
+      }
     ]
   },
   "dependencies": {
