@@ -170,6 +170,8 @@ Passed: real launch, packaged sample scan completed with 3 HTML pages, file sear
     );
     await command("Browser.close").catch(() => {});
   } catch (error) {
+    if (process.env.GITHUB_ACTIONS)
+      console.error("::error::" + error.message.replaceAll("%", "%25").replaceAll("\r", "%0D").replaceAll("\n", "%0A"));
     if (process.env.GITHUB_STEP_SUMMARY)
       await fs
         .appendFile(
