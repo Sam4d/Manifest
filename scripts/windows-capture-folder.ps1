@@ -8,6 +8,7 @@ using System;
 using System.Runtime.InteropServices;
 public class PageTraceWindow {
   [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr handle);
+  [DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr handle, uint message, IntPtr wParam, IntPtr lParam);
 }
 '@
 $root = [System.Windows.Automation.AutomationElement]::RootElement
@@ -31,21 +32,8 @@ $typedDestination = -join ($Destination.ToCharArray() | ForEach-Object {
 [System.Windows.Forms.SendKeys]::SendWait($typedDestination)
 Start-Sleep -Milliseconds 250
 [System.Windows.Forms.SendKeys]::SendWait('{ENTER}')
-$buttonName = [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::NameProperty, 'Save captures here')
-$buttonType = [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::ControlTypeProperty, [System.Windows.Automation.ControlType]::Button)
-$buttonCondition = [System.Windows.Automation.AndCondition]::new($buttonName, $buttonType)
-$button = $null
-for ($attempt = 0; $attempt -lt 40; $attempt++) {
-  $button = $dialog.FindFirst([System.Windows.Automation.TreeScope]::Descendants, $buttonCondition)
-  if ($button -and $button.Current.IsEnabled) { break }
-  Start-Sleep -Milliseconds 100
-}
-if (!$button -or !$button.Current.IsEnabled) { throw 'Output-folder confirmation button unavailable.' }
-$invoke = $null
-if ($button.TryGetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern, [ref]$invoke)) {
-  $invoke.Invoke()
-} else {
-  $button.SetFocus()
-  [System.Windows.Forms.SendKeys]::SendWait(' ')
-}
+# IFileDialog's confirmation control is a shell split button; it need not expose
+# InvokePattern or ControlType.Button. Activate the dialog's standard IDOK command.
+Start-Sleep -Milliseconds 750
+[PageTraceWindow]::SendMessage([IntPtr]$dialog.Current.NativeWindowHandle, 0x0111, [IntPtr]1, [IntPtr]0) | Out-Null
 Write-Output 'PageTrace output folder chosen through the native Windows dialog.'

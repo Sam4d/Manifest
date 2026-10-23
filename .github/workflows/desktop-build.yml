@@ -74,6 +74,8 @@ jobs:
         run: node scripts/httrack-smoke.cjs vendor/httrack/httrack.exe
       - name: Check automatic HTTrack desktop pipeline
         run: node_modules/.bin/electron scripts/httrack-desktop-smoke.cjs
+      - name: Check native capture folder dialog before packaging
+        run: node scripts/packaged-smoke.cjs node_modules/electron/dist/electron.exe .
       - name: Build installer and portable executable
         run: npm run dist:win
         env:
