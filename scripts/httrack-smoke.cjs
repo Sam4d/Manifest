@@ -11,7 +11,7 @@ const { options } = require("../src/capture.cjs");
   const executable = process.argv[2];
   if (!executable) throw Error("Pass the installed httrack CLI path.");
   const root = await fs.mkdtemp(
-    path.join(os.tmpdir(), "pagetrace-real-httrack-"),
+    path.join(os.tmpdir(), "pagetrace-real-httrack, folder-"),
   );
   const server = http.createServer((req, res) => {
     if (req.url === "/robots.txt") return res.end("User-agent: *\nAllow: /");

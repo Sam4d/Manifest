@@ -42,7 +42,9 @@ async function captureHTTrack(
   try {
     resume = (await fs.stat(path.join(directory, "hts-cache"))).isDirectory();
   } catch {}
-  const args = argumentsFor(url, directory, opts, resume);
+  // The child already runs inside the output directory. HTTrack interprets a
+  // comma in -O as a separate cache path, so use a relative dot for arbitrary folder names.
+  const args = argumentsFor(url, ".", opts, resume);
   let tail = "",
     code;
   await new Promise((resolve, reject) => {
