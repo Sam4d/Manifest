@@ -278,7 +278,7 @@ async function waitFor(window, expression) {
         );
         await waitFor(
           window,
-          "document.getElementById('message').textContent.includes('HTTrack mirror imported')",
+          "document.getElementById('message').textContent.includes('Saved mirror imported')",
         );
         assert.equal(
           await run("document.getElementById('pages-count').textContent"),

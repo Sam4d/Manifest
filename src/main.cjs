@@ -107,7 +107,7 @@ ipcMain.handle("import-httrack", async (event, threshold) => {
   busy = true;
   try {
     const pick = await dialog.showOpenDialog(window, {
-      title: "Choose an HTTrack project folder containing hts-cache",
+      title: "Choose a saved mirror project folder containing hts-cache",
       properties: ["openDirectory"],
     });
     if (pick.canceled) return null;
@@ -163,38 +163,14 @@ ipcMain.handle("open-export", async (event) => {
   if (error) throw Error(error);
 });
 
-async function selectHTTrack() {
-  if (httrackExecutable) return true;
-  const bundled = path.join(
-    app.isPackaged
-      ? process.resourcesPath
-      : path.join(__dirname, "..", "vendor"),
-    "httrack",
-    process.platform === "win32" ? "httrack.exe" : "httrack",
-  );
-  if (fs.existsSync(bundled)) {
-    httrackExecutable = bundled;
-    return true;
-  }
-  const pick = await dialog.showOpenDialog(window, {
-    title:
-      "Select installed HTTrack command-line executable (httrack.exe, not WinHTTrack.exe or Setup)",
-    properties: ["openFile"],
-    ...(process.platform === "win32"
-      ? { filters: [{ name: "HTTrack CLI", extensions: ["exe"] }] }
-      : {}),
-  });
-  if (pick.canceled) return false;
-  if (!/^httrack(?:\.exe)?$/i.test(path.basename(pick.filePaths[0])))
-    throw Error(
-      "Select httrack.exe (the command-line engine), not the installer or WinHTTrack interface.",
-    );
-  httrackExecutable = pick.filePaths[0];
-  return true;
-}
 async function runCapture(project) {
-  if (project.options.mode === "httrack" && !(await selectHTTrack()))
-    return null;
+  if (project.options.mode === "httrack")
+    httrackExecutable =
+      await require("./capture-runtime.cjs").resolveCaptureRuntime({
+        packaged: app.isPackaged,
+        resourcesPath: process.resourcesPath,
+        appRoot: path.join(__dirname, ".."),
+      });
   controller = new AbortController();
   const signal = controller.signal;
   capturedSites = [];
@@ -218,9 +194,10 @@ async function runCapture(project) {
           progress,
         );
         analysis.import = {
-          tool: "HTTrack",
+          tool: "PageTrace",
+          engine: "HTTrack 3.50.5",
           format: "local-mirror",
-          note: "Captured by the HTTrack CLI. Cache and configuration excluded from reconstruction kit.",
+          note: "Full website captured by PageTrace. Cache and configuration excluded from reconstruction kit.",
         };
         const kit = await exportBundle(analysis, project.directory, progress);
         capturedSites.push({
@@ -304,7 +281,8 @@ ipcMain.handle("capture", async (event, input) => {
   busy = true;
   try {
     const pick = await dialog.showOpenDialog(window, {
-      title: "Choose where to save full website captures",
+      title: "Choose where to save PageTrace captures",
+      buttonLabel: "Save captures here",
       properties: ["openDirectory", "createDirectory"],
     });
     if (pick.canceled) return null;

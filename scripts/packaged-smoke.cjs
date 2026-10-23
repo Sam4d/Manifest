@@ -154,17 +154,19 @@ async function freePort() {
       await evaluate("document.documentElement.dataset.theme"),
       "dark",
     );
+    if (process.platform === "win32")
+      await require("./packaged-capture-check.cjs")(evaluate, profile);
     if (process.env.GITHUB_STEP_SUMMARY)
       await fs.appendFile(
         process.env.GITHUB_STEP_SUMMARY,
         `
 ### Packaged executable check: ${path.basename(executable)}
 
-Passed: real launch, packaged sample scan completed with 3 HTML pages, file search, and dark mode.
+Passed: real launch, packaged sample scan completed with 3 HTML pages, file search, dark mode, and (Windows) full capture-to-kit using only the output-folder dialog.
 `,
       );
     console.log(
-      "PACKAGED PASS: executable boot, packaged preload, native sample creation, ASAR parser, completed scan with 3 pages, file search, and dark mode.",
+      "PACKAGED PASS: executable boot, packaged preload, native sample creation, ASAR parser, completed scan with 3 pages, file search, dark mode, and (Windows) full capture-to-kit using only the output-folder dialog.",
     );
     await command("Browser.close").catch(() => {});
   } catch (error) {

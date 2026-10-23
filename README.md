@@ -26,11 +26,11 @@ Or open [Releases](https://github.com/Sam4d/Manifest/releases/latest) for the in
 
 ## Download everything first. Rebuild with the essentials.
 
-The default **HTTrack** mode uses the real engine, included in Windows releases. **Skip download limits** is enabled by default; uncheck it for individual caps, with **0 = unlimited**. It downloads the full mirror, then automatically creates a separate essentials folder, AI-ready schema, HTML report and SVG website diagram. The original capture stays intact. Depth/size limits and HTTrack discovery still apply; unavailable or undiscovered files cannot be guaranteed. [Pipeline and engine documentation](docs/HTTRACK.md).
+The default **Full website** mode includes its download engine inside PageTrace. You do not install another app, use a terminal, or locate an executable. **Skip download limits** is enabled by default; uncheck it for individual caps, with **0 = unlimited**. It downloads the full mirror, then automatically creates a separate essentials folder, AI-ready schema, HTML report and SVG website diagram. The original capture stays intact. Depth/size limits and HTTrack discovery still apply; unavailable or undiscovered files cannot be guaranteed. [Pipeline and engine documentation](docs/HTTRACK.md).
 
 ## HTTrack projects welcome
 
-Already have a WinHTTrack mirror? Click **Import HTTrack mirror**, select the project containing `hts-cache`, then analyze and export a lightweight blueprint. Download caches, logs and profile settings are excluded. PageTrace also reads existing HTTrack projects offline. [Illustrated HTTrack guide and inspection notes](docs/HTTRACK.md).
+Already have a WinHTTrack mirror? Expand **Use an existing website download** and click **Import saved mirror**, select the project containing `hts-cache`, then analyze and export a lightweight blueprint. Download caches, logs and profile settings are excluded. PageTrace also reads existing HTTrack projects offline. [Illustrated HTTrack guide and inspection notes](docs/HTTRACK.md).
 
 ![Import an HTTrack mirror](docs/images/14-httrack-import.png)
 

@@ -38,3 +38,6 @@ if (!$crt) { throw 'Visual C++ redistributable directory missing' }
 Copy-Item "$($crt.FullName)\*.dll" $destination
 & "$destination\httrack.exe" --version
 if ($LASTEXITCODE -ne 0) { throw 'Built HTTrack does not launch' }
+
+$runtimeFiles = @(Get-ChildItem $destination -File | Where-Object { $_.Extension -in '.exe', '.dll' } | ForEach-Object { @{ name = $_.Name; bytes = $_.Length } })
+@{ engine = 'HTTrack'; version = $version; files = $runtimeFiles } | ConvertTo-Json -Depth 5 | Set-Content "$destination\runtime.json"

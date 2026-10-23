@@ -495,7 +495,7 @@ tbody tr:hover {
 }
 
 .httrack-handoff {
-  display: flex;
+  display: block;
   align-items: center;
   gap: 24px;
   justify-content: space-between;
@@ -538,4 +538,13 @@ tbody tr:hover {
 .httrack-engine-note .muted {
   color: var(--muted);
   font-size: 12px;
+}
+
+.httrack-handoff summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+}
+.httrack-handoff button {
+  margin-top: 12px;
 }

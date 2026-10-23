@@ -8,7 +8,7 @@ async function inspectProject(root) {
   );
   if (!cache)
     throw Error(
-      "Choose the HTTrack project folder containing hts-cache, not the downloaded host subfolder.",
+      "Choose a saved mirror project containing hts-cache, or use Choose website folder for ordinary website files.",
     );
   // Never follow a cache symlink or read its configuration (which can contain credentials).
   const cacheEntries = await fs.readdir(path.join(root, cache.name), {
@@ -24,7 +24,7 @@ async function inspectProject(root) {
     )
   )
     throw Error(
-      "This folder has no recognizable HTTrack project metadata. Finish a capture in HTTrack first.",
+      "This folder has no recognizable mirror metadata. Use Choose website folder for ordinary website files.",
     );
   return {
     tool: "HTTrack",

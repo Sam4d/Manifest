@@ -6,7 +6,7 @@ PageTrace turns a local website folder into a readable report, an AI-ready manif
 
 ## Import an HTTrack mirror
 
-Click **Import HTTrack mirror** in the capture panel and select the project folder containing `hts-cache`. PageTrace skips the download cache, logs and profile settings, then scans the saved website. Export normally to get the report, manifest and lightweight copy. [Full illustrated instructions and limits](HTTRACK.md).
+Expand **Use an existing website download**, then click **Import saved mirror** in the capture panel and select the project folder containing `hts-cache`. PageTrace skips the download cache, logs and profile settings, then scans the saved website. Export normally to get the report, manifest and lightweight copy. [Full illustrated instructions and limits](HTTRACK.md).
 
 ## Appearance and keyboard controls
 
@@ -146,3 +146,7 @@ For technical details, read the [architecture guide](ARCHITECTURE.md) and [manif
 The progress panel shows the active phase and current relative file path. Source analysis runs outside the window’s event loop. If analysis of an individual source file exceeds three seconds, it is skipped with a warning while the inventory and lightweight selection retain that file. Parser cancellation interrupts stuck source analysis.
 
 Check **Technology & notes** for `Source analysis skipped` entries. A timed-out HTML file will not have a parsed page outline. Unreadable nested folders are reported rather than aborting the whole scan. The budget does not bound operating-system filesystem calls; cloud placeholders or disconnected drives may still take time to respond. Use an extracted, locally available folder for the most reliable scan.
+
+## PageTrace handles downloading
+
+Select **Full website**, enter the URL, and click **Download & build kit**. Choose only where PageTrace should save the capture. No other application, executable selection, or terminal is required. Keep **Skip download limits** checked for uncapped downloads; zero-valued optional download limits remain unlimited.

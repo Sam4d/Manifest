@@ -434,7 +434,7 @@ async function beginScan(sample = false, httrack = false) {
     sample
       ? "Preparing a local sample website. This is example content, not your files."
       : httrack
-        ? "Choose the HTTrack project folder containing hts-cache. Cache and logs will be excluded."
+        ? "Choose a saved mirror project folder. Download caches and logs will be excluded."
         : "Choose the root folder of your extracted website.",
     "info",
   );
@@ -456,7 +456,7 @@ async function beginScan(sample = false, httrack = false) {
         sample
           ? "You’re exploring a sample website. Choose your own folder whenever you’re ready."
           : httrack
-            ? "HTTrack mirror imported. Cache and logs excluded. Explore the structure, then export your lightweight blueprint."
+            ? "Saved mirror imported. Cache and logs excluded. Explore the structure, then export your lightweight blueprint."
             : "Your blueprint is ready. Explore the structure, then export to a separate folder.",
       );
     } else
@@ -519,7 +519,7 @@ $("open-export").onclick = async () => {
 };
 window.pageTrace.onProgress((p) => {
   if (p.phase === "httrack-download") {
-    $("progress-title").textContent = "HTTrack · downloading full mirror…";
+    $("progress-title").textContent = "Downloading full website…";
     $("progress-detail").textContent =
       p.currentPath || p.site || "Downloading…";
     return;
@@ -531,7 +531,7 @@ window.pageTrace.onProgress((p) => {
   }
   const labels = {
     "preparing-sample": "Preparing local example",
-    "httrack-download": "HTTrack · downloading full mirror",
+    "httrack-download": "Downloading full website",
     "reading-directory": "Reading folder",
     "parsing-source": "Analyzing source",
     inventory: "Measuring files",

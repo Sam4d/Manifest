@@ -1,4 +1,4 @@
-// Run the separately installed HTTrack CLI without a command shell.
+// Run the bundled capture component privately; no external tools or command shell.
 const { spawn } = require("node:child_process");
 const fs = require("node:fs/promises");
 const path = require("node:path");
@@ -96,7 +96,14 @@ async function captureHTTrack(
     };
     child.once("error", (error) => {
       cleanup();
-      reject(Error("Could not start HTTrack CLI: " + error.message));
+      reject(
+        Error(
+          "PageTrace could not start downloading (" +
+            (error.code || "runtime error") +
+            "). Reopen PageTrace and try again.",
+          { cause: error },
+        ),
+      );
     });
     child.once("close", (exitCode) => {
       cleanup();
@@ -116,7 +123,7 @@ async function captureHTTrack(
   );
   if (!signal?.aborted && code !== 0)
     throw Error(
-      `HTTrack exited with code ${code}. Inspect hts-log.txt in ${directory}.`,
+      `PageTrace could not finish this download (code ${code}). Details are saved in ${directory}.`,
     );
   return { mirror: directory, paused: !!signal?.aborted };
 }

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0 — Self-contained PageTrace capture
+
+- Removed the external executable-selection fallback entirely. PageTrace uses only its included download component.
+- Added runtime dependency verification and a Windows packaging guard to reject incomplete app bundles.
+- Simplified the main mode to Full website and moved saved-mirror import behind an optional disclosure.
+- Replaced command-line jargon in progress, errors and capture provenance with PageTrace wording.
+- Extended real Windows executable checks to choose the actual native output folder and capture a website, then verify the essentials, schema, diagram and report.
+
 ## 0.5.2 — Simple unlimited downloads
 
 - Added one Skip download limits switch, enabled by default.

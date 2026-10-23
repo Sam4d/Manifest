@@ -60,7 +60,7 @@ function options(input = {}) {
       throw Error(`Invalid ${key} (${min}–${max}).`);
   }
   if (!["static", "browser", "httrack"].includes(out.mode))
-    throw Error("Choose HTTrack, static or browser capture.");
+    throw Error("Choose Full website, Fast or Browser capture.");
   if (typeof out.httrackFull !== "boolean")
     throw Error("Invalid HTTrack full-mirror setting.");
   if (typeof out.externalAssets !== "boolean")

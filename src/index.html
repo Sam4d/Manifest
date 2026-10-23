@@ -130,7 +130,7 @@
             Local by design<span>No uploads. Your files stay yours.</span>
           </div>
         </div>
-        <div class="version">PAGETRACE <span>v0.5.2</span></div>
+        <div class="version">PAGETRACE <span>v0.6.0</span></div>
       </div>
     </aside>
     <main>
@@ -207,20 +207,17 @@
               Resume a saved capture
             </button>
           </div>
-          <div class="httrack-handoff">
-            <div>
-              <strong>Already captured with HTTrack?</strong>
-              <p>
-                Turn a saved mirror into a structure report, AI manifest, and
-                lighter copy. Select the project folder containing
-                <code>hts-cache</code>. Download caches, logs, and settings stay
-                out of your export.
-              </p>
-            </div>
+          <details class="httrack-handoff">
+            <summary>Use an existing website download</summary>
+            <p>
+              Choose website folder for normal HTML/CSS/JavaScript folders. For
+              saved copier projects containing hts-cache, use Import saved
+              mirror.
+            </p>
             <button id="import-httrack" class="button secondary" type="button">
-              Import HTTrack mirror
+              Import saved mirror
             </button>
-          </div>
+          </details>
           <div id="httrack-engine-note" class="httrack-engine-note">
             <p>
               Download the full mirror first. PageTrace then builds your
@@ -249,9 +246,7 @@
             <div class="capture-controls">
               <label
                 >Capture mode<select id="capture-mode">
-                  <option value="httrack">
-                    HTTrack · full mirror → essentials + schema
-                  </option>
+                  <option value="httrack">Full website · recommended</option>
                   <option value="static">Fast · linked pages & assets</option>
                   <option value="browser">
                     Browser · JavaScript & rendered DOM
