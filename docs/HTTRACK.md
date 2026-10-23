@@ -12,6 +12,10 @@ HTTrack is a website mirroring application; PageTrace adds the structure analysi
 4. Choose a destination and start. Each URL gets a complete mirror. PageTrace then automatically analyzes it and creates a separate `PageTrace-*` reconstruction kit in the capture project. The results show its path.
 5. Open the kit's `report.html` to see structure, technologies, asset decisions and the page-link diagram. `schema.json` contains the full static page/dependency graph; `site-map.svg` is the standalone diagram. `manifest.json` and `REBUILD.md` support the AI handoff. Essential source is under `lightweight/`.
 
+The screenshot below shows an actual local HTTP fixture completing the entire engine → analysis → automatic export flow. The full capture and ready reconstruction kit appear together; **Open export folder** opens the kit.
+
+![Completed HTTrack download and automatic reconstruction kit](images/16-httrack-pipeline.png)
+
 The full download is never reduced in place. Videos/audio, large binaries, installers, archives and source maps are omitted from the derived kit. HTML, CSS, JavaScript and smaller supporting assets remain. JavaScript is conservatively retained because static analysis cannot reliably distinguish core code from dynamically loaded code. Media placeholders and missing dependencies may still need adjustment during rebuilding.
 
 HTTrack mode maps timeout and retry controls to native options. With **Full mirror** unchecked it also maps depth, total-byte and per-file-byte limits; otherwise those fields are disabled and HTTrack uses its defaults. Page/file counts, delay, include/exclude filters and external-assets controls apply to the built-in capture modes, not this adapter; the UI disables them in HTTrack mode. A successful engine exit is labeled **REVIEW LOG** because it can still contain per-URL failures or hit a limit; inspect `hts-log.txt`. Pause stops the native engine, preserving its cache; resuming the PageTrace project invokes HTTrack's cache continuation. The built-in Browser mode remains available separately for rendered DOM capture.
