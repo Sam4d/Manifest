@@ -1,5 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $version = '3.50.5'
+if ($env:VCPKG_DEFAULT_BINARY_CACHE) { New-Item -ItemType Directory -Force $env:VCPKG_DEFAULT_BINARY_CACHE | Out-Null }
 $archive = Join-Path $env:RUNNER_TEMP "httrack-$version.tar.gz"
 Invoke-WebRequest "https://deb.debian.org/debian/pool/main/h/httrack/httrack_$version.orig.tar.gz" -OutFile $archive
 $expected = '491df91a3093f121bddf416bae915488643346adaebc2e1224a8acd144193f5e'

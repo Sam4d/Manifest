@@ -106,6 +106,19 @@ test("HTTrack command uses separate arguments and does not exclude media from fu
   );
   assert.equal(args[args.indexOf("-O") + 1], "C:\\saved sites\\test");
   assert.ok(args.includes("-%P"));
+  const full = argumentsFor(
+    "https://example.com/",
+    "/tmp/output",
+    options({ mode: "httrack", httrackFull: true }),
+  );
+  assert.ok(
+    !full.some((a) => /^-r|^-M|^-m/.test(a)),
+    "Full mirror must use native depth/size defaults",
+  );
+  assert.equal(
+    require("../src/httrack-import.cjs").excluded("cookies.txt"),
+    true,
+  );
   assert.ok(!args.some((a) => a.includes("*.mp4")));
   assert.throws(
     () => argumentsFor("file:///tmp/site", "/tmp/out", options()),

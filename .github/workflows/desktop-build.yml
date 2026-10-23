@@ -47,8 +47,14 @@ jobs:
       - name: Check multi-site and rendered capture
         run: npm run test:capture:desktop
       - uses: microsoft/setup-msbuild@v2
+      - uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/vcpkg-binary-cache
+          key: httrack-3.50.5-msvc-vcpkg-${{ runner.os }}
       - name: Build bundled HTTrack from verified source
         shell: pwsh
+        env:
+          VCPKG_DEFAULT_BINARY_CACHE: ${{ runner.temp }}/vcpkg-binary-cache
         run: |
           try { ./scripts/build-httrack.ps1 *>&1 | Tee-Object -Variable buildOutput }
           catch {

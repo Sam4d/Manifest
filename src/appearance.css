@@ -514,3 +514,26 @@ tbody tr:hover {
 .httrack-handoff button {
   flex-shrink: 0;
 }
+.httrack-engine-note {
+  padding: 4px 0 14px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.httrack-engine-note label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+  font-weight: 600;
+}
+.httrack-engine-note input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex: 0 0 auto;
+  accent-color: var(--brand);
+}
+.httrack-engine-note .muted {
+  color: var(--muted);
+  font-size: 12px;
+}
