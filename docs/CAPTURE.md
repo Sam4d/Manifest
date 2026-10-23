@@ -1,6 +1,6 @@
-# Capture websites with PageTrace 0.4
+# Capture websites with PageTrace
 
-**PageTrace 0.5:** the default **HTTrack** mode runs the bundled native engine and automatically produces the essentials folder, schema, SVG diagram and report. Its options and resume behavior are documented in [HTTRACK.md](HTTRACK.md). The implementation details and limits below describe the built-in Fast/Browser engines.
+The default **Full website** mode includes its download engine inside PageTrace and automatically produces the essentials folder, schema, SVG diagram and report. No separate application, executable selection or terminal step is required. Its options and resume behavior are documented in [HTTRACK.md](HTTRACK.md). The implementation details and limits below describe the built-in Fast/Browser engines.
 
 
 PageTrace can now download public websites before analyzing them. All capture traffic uses the desktop computer's internet connection. No PageTrace crawling server, Vercel function or cloud upload is required. The Windows app is the supported delivery target; a browser-only app is deferred.
@@ -12,7 +12,7 @@ PageTrace can now download public websites before analyzing them. All capture tr
 1. On Overview, paste complete HTTP(S) URLs, one per line.
 2. Choose **Fast** for linked pages and assets, or **Browser** for JavaScript-rendered HTML and discovered network resource URLs.
 3. Set the page count, link depth and stored-data budget. Under More capture controls, set file count, per-file size, delay, retries, URL include/exclude patterns and external assets.
-4. Click **Capture websites** and choose a destination. A unique project folder is created, with a separate numbered folder for each starting URL, including multiple URLs on the same host.
+4. Click **Download & build kit** and choose a destination. A unique project folder is created, with a separate numbered folder for each starting URL, including multiple URLs on the same host.
 5. Watch saved files, bytes, pages, queued URLs and current URL. **Pause capture** cancels the active request and checkpoints the queue. Use **Resume a saved capture** and select the folder containing `project.json` to continue, including after restarting the app. An in-progress response restarts from the beginning; this is file-level resume, not HTTP Range resume.
 6. Review each site's status and its `capture-report.html`. Click **Analyze & prepare AI export** for the desired site, then **Export blueprint**. The full media capture remains on disk.
 
@@ -59,7 +59,7 @@ Status **complete** means the discovered queue finished under the chosen scope. 
 
 ## HTTrack comparison and explicit omissions
 
-The design follows the core mirroring workflow described in [HTTrack's guide](https://www.httrack.com/HelpHtml/cmdguide.html), [interface documentation](https://www.httrack.com/html/step4.html), and [FAQ](https://www.httrack.com/html/faq.html). This is an independently implemented capture engine, not a bundled HTTrack distribution or a claim of CLI-option parity.
+The design follows the core mirroring workflow described in [HTTrack's guide](https://www.httrack.com/HelpHtml/cmdguide.html), [interface documentation](https://www.httrack.com/html/step4.html), and [FAQ](https://www.httrack.com/html/faq.html). The optional Fast/Browser engines are independently implemented. Full website mode uses the bundled upstream HTTrack engine; the option omissions below refer to the Fast/Browser engines.
 
 Implemented: multi-URL projects, linked-page/asset capture, scope and filters, depth/page/file/size budgets, retries, redirect handling, robots rules, local-link rewriting, persistent job resume, plus rendered DOM capture and PageTrace's AI export.
 

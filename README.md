@@ -34,11 +34,11 @@ Already have a WinHTTrack mirror? Expand **Use an existing website download** an
 
 ![Import an HTTrack mirror](docs/images/14-httrack-import.png)
 
-## New in 0.4: capture, analyze, export
+## Additional capture modes
 
 Paste multiple website URLs. Capture linked pages/assets in **Fast** mode or use **Browser** mode for sandboxed JavaScript-rendered HTML. Set page/depth/file/size limits, retries, delays and URL filters. Pause and resume a persisted project. Each site gets its own full original capture, a rewritten mirror, URL mapping and a readable failure report. Select a site to analyze and export the smaller AI kit.
 
-All crawling uses your computer's connection. No crawling server or cloud upload is required. [Read the capture guide and explicit limits](docs/CAPTURE.md). This release implements the core mirroring workflow; it does not claim every HTTrack option or complete website replay. The web app remains deferred.
+All crawling uses your computer's connection. No crawling server or cloud upload is required. [Read the capture guide and explicit limits](docs/CAPTURE.md). Fast and Browser are optional alternatives to the included Full website engine. Capturing a website cannot recover its private server code or database.
 
 ## Light or dark. Always local.
 
@@ -52,7 +52,7 @@ Choose **Light**, **Dark**, or **Auto** in the top bar. Your selection is rememb
 
 ## Three steps to a fresh start
 
-1. **Capture or choose a folder.** Enter URLs and capture them, then select a site to analyze, or select the extracted root of your local website. Set the large-binary cutoff before scanning if needed.
+1. **Capture or choose a folder.** Enter URLs and click **Download & build kit** for automatic Full website capture, analysis and export. Or choose the root of an existing local website. Set the large-binary cutoff before scanning if needed.
 2. **Discover the structure.** Review the space breakdown, nested HTML layouts, headings, technologies, and file relationships. Search and filter the inventory; inspect individual files.
 3. **Export your blueprint.** Choose a folder outside the original. A new, unique output folder contains a readable HTML report, an AI-ready JSON manifest, a lightweight source copy, and a rebuilding brief.
 

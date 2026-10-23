@@ -2,7 +2,11 @@
 
 PageTrace is a local desktop application for **offline website analysis, HTML structure inspection, asset inventory, AI context extraction, and website reconstruction planning**. It does not run a web server or require a cloud service.
 
-## Capture stage (0.4)
+## Full website capture
+
+The default Full website mode resolves PageTrace's own runtime through `src/capture-runtime.cjs`. Windows runtime files and sizes are verified against the included manifest. `src/httrack-engine.cjs` runs the bundled upstream engine without a command shell; users never locate an external executable. After capture, the main process scans the full mirror and exports a separate essentials copy, manifest, schema, SVG diagram and HTML report. `scripts/check-capture-package.cjs` rejects incomplete Windows bundles during packaging.
+
+## Fast and Browser capture
 
 `src/capture.cjs` streams public HTTP responses, checks robots policy and redirects, discovers bounded page/asset references, checkpoints a persistent queue and produces original + rewritten mirror folders. `src/browser-capture.cjs` supplies optional rendered DOM and observed resource URLs through disposable sandboxed Electron sessions. It has no preload, Node integration, persistent credentials or granted permissions. Capturing uses the local machine's network; the local UI keeps its network-blocking content policy. See [CAPTURE.md](CAPTURE.md) for limits and output schema.
 
@@ -98,7 +102,7 @@ Desktop checks exercise actual IPC scans/exports, validation, filters, sorting, 
 npm run dist:win
 ```
 
-Builds both `PageTrace-VERSION-x64-Setup.exe` and `PageTrace-VERSION-x64-portable.exe`. Native Windows is the standard release platform. Linux cross-builds can produce the portable executable; the installer’s uninstaller-generation step requires a working Wine toolchain, which may be unavailable in a Linux container.
+Builds both `PageTrace-VERSION-x64-Setup.exe` and `PageTrace-VERSION-x64-portable.exe`. Native Windows is the standard release platform. Build the included download runtime first with `scripts/build-httrack.ps1`, as the Windows workflow does; packaging rejects missing runtime dependencies. Linux cross-builds can produce the portable executable; the installer’s uninstaller-generation step requires a working Wine toolchain, which may be unavailable in a Linux container.
 
 The **Windows executable** workflow runs native Windows tests and desktop interactions, packages the app, and publishes a GitHub Release with:
 
