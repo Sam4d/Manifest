@@ -31,7 +31,9 @@ $typedDestination = -join ($Destination.ToCharArray() | ForEach-Object {
 [System.Windows.Forms.SendKeys]::SendWait($typedDestination)
 Start-Sleep -Milliseconds 250
 [System.Windows.Forms.SendKeys]::SendWait('{ENTER}')
-$buttonCondition = [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::NameProperty, 'Save captures here')
+$buttonName = [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::NameProperty, 'Save captures here')
+$buttonType = [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::ControlTypeProperty, [System.Windows.Automation.ControlType]::Button)
+$buttonCondition = [System.Windows.Automation.AndCondition]::new($buttonName, $buttonType)
 $button = $null
 for ($attempt = 0; $attempt -lt 40; $attempt++) {
   $button = $dialog.FindFirst([System.Windows.Automation.TreeScope]::Descendants, $buttonCondition)
